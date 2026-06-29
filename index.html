@@ -121,6 +121,10 @@
 </head>
 <body>
 
+    <audio id="bgm" loop hidden>
+        <source src="HTMLMUSIC01.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="terminal-container">
         <div class="system-header">
             <div>SYSTEM: YILAN_COUNTY_GOV_1981</div>
@@ -130,6 +134,7 @@
         <div class="title-area">
             <h1>【青天專案】核心檔案庫</h1>
             <p>登入身分：陳定南 (縣長) | 權限：最高級別 <span class="cursor"></span></p>
+            <p style="font-size: 14px; color: #55aa55; margin-top: 10px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</p>
         </div>
 
         <div class="mission-grid">
@@ -147,14 +152,14 @@
                 <div class="status-badge">狀態：等待查核</div>
             </a>
 
-            <a href="game3.html" class="mission-card">
+            <a href="L4.html" class="mission-card">
                 <div class="mission-id">FILE #03</div>
                 <div class="mission-title">黑夜追緝盜採砂石</div>
                 <div class="mission-desc">任務：深夜埋伏蘭陽溪畔，利用手電筒查驗砂石車牌。鐵腕掃蕩越界超挖的黑道集團。</div>
                 <div class="status-badge">狀態：等待查核</div>
             </a>
 
-            <a href="L4.html" class="mission-card card-hidden">
+            <a href="game4.html" class="mission-card card-hidden">
                 <div class="mission-id">FILE #04 (機密)</div>
                 <div class="mission-title" style="color: var(--warning-yellow);">冬山河監工大考驗</div>
                 <div class="mission-desc" style="color: #ddb;">任務：親自帶著鐵鎚與皮尺前往工地。一公分的誤差、一度的傾斜，通通打掉重練！</div>
@@ -168,7 +173,7 @@
     </div>
 
     <script>
-        // 營造 80 年代電腦開機的感覺
+        // --- 開機動畫處理 ---
         window.onload = () => {
             const bootScreen = document.getElementById('boot-screen');
             const bootText = document.getElementById('boot-text');
@@ -179,6 +184,18 @@
                 bootScreen.style.display = 'none'; 
             }, 1800);
         };
+
+        // --- 背景音樂觸發處理 ---
+        const bgm = document.getElementById('bgm');
+        
+        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
+        window.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(error => {
+                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
+                });
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
