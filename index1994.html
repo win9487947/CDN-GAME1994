@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>秘密調查處 - 身分審核系統</title>
+    <title>秘密調查處 - 幽靈連署審查系統</title>
     <style>
-        /* 引入 Google 字體來模擬像素/復古感 */
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 
         :root {
             --bg-color: #0a0a0a;
-            --text-color: #33ff33; /* 經典終端機綠色 */
+            --text-color: #33ff33; 
             --border-color: #aaaaaa;
             --card-bg: #1a1a1a;
             --btn-pass: #28a745;
             --btn-reject: #dc3545;
+            --hp-color: #ff3333;
         }
 
         body {
@@ -36,25 +36,99 @@
             content: " ";
             display: block;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
         }
 
-        #game-container {
+        #app-container {
+            width: 800px;
+            max-width: 95%;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ================= 劇情對話畫面 ================= */
+        #intro-screen {
+            background-color: #000;
+            border: 4px solid var(--text-color);
+            padding: 30px;
+            box-shadow: 0 0 20px var(--text-color);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dialogue-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            background: #111;
+            border: 2px dashed var(--border-color);
+            padding: 20px;
+        }
+
+        .portrait {
+            width: 120px;
+            height: 140px;
+            object-fit: cover;
+            border: 4px solid #fff;
+            image-rendering: pixelated; /* 強化像素感 */
+            background-color: #333;
+        }
+
+        .dialogue-text-area {
+            flex-grow: 1;
+            min-height: 120px;
+        }
+
+        .speaker-name {
+            font-size: 24px;
+            color: #ffff33;
+            margin-bottom: 10px;
+            font-weight: bold;
+            border-bottom: 2px solid #555;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        #dialogue-text {
+            font-size: 20px;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .intro-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .btn-intro {
+            background: #000;
+            color: var(--text-color);
+            border: 2px solid var(--text-color);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-intro:hover { background: #003300; }
+        .btn-skip { color: #888; border-color: #888; }
+        .btn-skip:hover { background: #222; }
+
+        /* ================= 遊戲主畫面 ================= */
+        #game-screen {
             background-color: #000;
             border: 4px solid var(--text-color);
             padding: 20px;
-            width: 800px;
-            max-width: 95%;
             box-shadow: 0 0 20px var(--text-color);
-            position: relative;
-            z-index: 10;
+            display: none;
         }
 
         header {
@@ -64,17 +138,18 @@
             margin-bottom: 20px;
         }
 
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 24px;
-            letter-spacing: 2px;
-        }
+        h1 { margin: 0 0 10px 0; font-size: 24px; letter-spacing: 2px; }
 
         .status-bar {
             display: flex;
             justify-content: space-between;
             font-size: 18px;
+            background: #111;
+            padding: 10px;
+            border: 1px solid #333;
         }
+
+        .hp-bar { font-size: 22px; color: var(--hp-color); letter-spacing: 5px; text-shadow: 0 0 5px var(--hp-color);}
 
         #workspace {
             display: flex;
@@ -83,137 +158,110 @@
             margin-bottom: 20px;
         }
 
-        /* 文件卡片樣式 */
         .document {
             flex: 1;
             background-color: var(--card-bg);
             border: 4px solid var(--border-color);
             padding: 15px;
-            /* 模擬像素邊角 */
             box-shadow: inset -4px -4px 0px rgba(0,0,0,0.5), inset 4px 4px 0px rgba(255,255,255,0.1);
         }
 
         .document h2 {
-            text-align: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 5px;
-            margin-top: 0;
-            color: #fff;
+            text-align: center; border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px; margin-top: 0; color: #fff;
         }
 
-        .data-row {
-            margin-bottom: 15px;
-            font-size: 18px;
-            color: #ddd;
-        }
+        .data-row { margin-bottom: 15px; font-size: 18px; color: #ddd; }
+        .data-label { color: #888; display: inline-block; width: 60px; }
+        .data-value { font-weight: bold; letter-spacing: 1px; color: #fff; }
 
-        .data-label {
-            color: #888;
-            display: inline-block;
-            width: 60px;
-        }
-
-        .data-value {
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #fff;
-        }
-
-        /* 控制按鈕區 */
-        #controls {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
+        #controls { display: flex; justify-content: center; gap: 40px; }
 
         .btn {
-            font-family: inherit;
-            font-size: 20px;
-            padding: 15px 30px;
-            border: 4px solid #fff;
-            cursor: pointer;
-            font-weight: bold;
-            color: #fff;
-            text-transform: uppercase;
-            position: relative;
-            /* 像素按鈕立體感 */
-            box-shadow: 4px 4px 0px #000, 6px 6px 0px #fff;
-            transition: all 0.1s;
+            font-family: inherit; font-size: 20px; padding: 15px 30px;
+            border: 4px solid #fff; cursor: pointer; font-weight: bold;
+            color: #fff; text-transform: uppercase; position: relative;
+            box-shadow: 4px 4px 0px #000, 6px 6px 0px #fff; transition: all 0.1s;
         }
+        .btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000, 2px 2px 0px #fff; }
+        .btn-pass { background-color: var(--btn-pass); border-color: #55ff55; }
+        .btn-reject { background-color: var(--btn-reject); border-color: #ff5555; }
 
-        .btn:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #000, 2px 2px 0px #fff;
-        }
-
-        .btn-pass {
-            background-color: var(--btn-pass);
-            border-color: #55ff55;
-        }
-
-        .btn-reject {
-            background-color: var(--btn-reject);
-            border-color: #ff5555;
-        }
-
-        /* 系統提示訊息 */
         #message-box {
-            text-align: center;
-            height: 30px;
-            font-size: 20px;
-            margin-bottom: 15px;
-            font-weight: bold;
+            text-align: center; height: 30px; font-size: 20px;
+            margin-bottom: 15px; font-weight: bold;
         }
-
         .msg-success { color: #55ff55; }
         .msg-error { color: #ff5555; }
 
-        /* 勝利畫面 */
-        #victory-screen {
+        /* ================= 結算畫面 (勝利/失敗) ================= */
+        #end-screen {
             display: none;
             text-align: center;
+            background-color: #000;
+            border: 4px solid var(--text-color);
             padding: 40px 20px;
+            box-shadow: 0 0 20px var(--text-color);
         }
 
         .password-box {
-            font-size: 40px;
-            color: #ffff33;
-            background: #222;
-            padding: 20px;
-            border: 4px dashed #ffff33;
-            display: inline-block;
-            margin-top: 20px;
+            font-size: 40px; color: #ffff33; background: #222;
+            padding: 20px; border: 4px dashed #ffff33;
+            display: inline-block; margin-top: 20px;
             animation: blink-fast 1s step-end infinite;
         }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-        
-        @keyframes blink-fast {
-            50% { opacity: 0; }
-        }
+        .game-over-title { color: var(--btn-reject); font-size: 36px; text-shadow: 0 0 10px var(--btn-reject); }
 
-        .hidden {
-            display: none !important;
+        @keyframes blink-fast { 50% { opacity: 0; } }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
         }
+        .shake-effect { animation: shake 0.3s ease-in-out; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <!-- 背景音樂 -->
     <audio id="bgm" loop hidden>
         <source src="HTMLMUSIC01.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="game-container">
-        <div id="game-ui">
+    <div id="app-container">
+        
+        <!-- ================= 劇情對話畫面 ================= -->
+        <div id="intro-screen">
+            <h1 style="text-align: center; margin-top: 0; border-bottom: 2px dashed #33ff33; padding-bottom: 10px;">系統登入程序啟動</h1>
+            
+            <div class="dialogue-container">
+                <img src="CND.png" alt="陳定南" class="portrait">
+                <div class="dialogue-text-area">
+                    <div class="speaker-name">陳定南</div>
+                    <div id="dialogue-text"></div>
+                </div>
+            </div>
+
+            <div class="intro-controls">
+                <button class="btn-intro btn-skip" id="btn-skip" onclick="skipDialogue()">快速跳過 >></button>
+                <button class="btn-intro" id="btn-next" onclick="nextDialogue()">下一句 ▼</button>
+            </div>
+            <div style="text-align: center; font-size: 14px; color: #55aa55; margin-top: 10px;">(點擊按鈕將同步啟動音訊模組)</div>
+        </div>
+
+        <!-- ================= 遊戲主畫面 ================= -->
+        <div id="game-screen">
             <header>
                 <h1>秘密調查處 - 幽靈連署審查系統</h1>
                 <div class="status-bar">
-                    <span>登入審核員：<span style="color: #fff;">陳定南</span></span>
-                    <span>成功審核：<span id="score" style="color: #ffff33;">0</span> / 3</span>
+                    <span>審核員：<span style="color: #fff;">陳定南</span></span>
+                    <span>容錯率 (HP)：<span class="hp-bar" id="hp-display">❤❤</span></span>
+                    <span>進度：<span id="score" style="color: #ffff33;">0</span> / 3</span>
                 </div>
-                <div style="font-size: 14px; color: #55aa55; margin-top: 10px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
             </header>
 
             <div id="message-box">等待審核中...</div>
@@ -221,34 +269,16 @@
             <div id="workspace">
                 <div class="document">
                     <h2>身分證 (真本)</h2>
-                    <div class="data-row">
-                        <span class="data-label">姓名:</span>
-                        <span class="data-value" id="id-name">讀取中</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">字號:</span>
-                        <span class="data-value" id="id-number">讀取中</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">生日:</span>
-                        <span class="data-value" id="id-dob">讀取中</span>
-                    </div>
+                    <div class="data-row"><span class="data-label">姓名:</span><span class="data-value" id="id-name">讀取中</span></div>
+                    <div class="data-row"><span class="data-label">字號:</span><span class="data-value" id="id-number">讀取中</span></div>
+                    <div class="data-row"><span class="data-label">生日:</span><span class="data-value" id="id-dob">讀取中</span></div>
                 </div>
 
                 <div class="document">
                     <h2>送審單據</h2>
-                    <div class="data-row">
-                        <span class="data-label">姓名:</span>
-                        <span class="data-value" id="form-name">讀取中</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">字號:</span>
-                        <span class="data-value" id="form-number">讀取中</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">生日:</span>
-                        <span class="data-value" id="form-dob">讀取中</span>
-                    </div>
+                    <div class="data-row"><span class="data-label">姓名:</span><span class="data-value" id="form-name">讀取中</span></div>
+                    <div class="data-row"><span class="data-label">字號:</span><span class="data-value" id="form-number">讀取中</span></div>
+                    <div class="data-row"><span class="data-label">生日:</span><span class="data-value" id="form-dob">讀取中</span></div>
                 </div>
             </div>
 
@@ -258,11 +288,23 @@
             </div>
         </div>
 
-        <div id="victory-screen">
-            <h1 style="color: #55ff55;">系統解鎖成功！</h1>
-            <p style="font-size: 20px; color: #fff;">陳定南長官，您以「誠實與精確」完成了審查。</p>
-            <p style="font-size: 18px;">機密檔案解鎖密碼為：</p>
-            <div class="password-box">CLEAN_1981</div>
+        <!-- ================= 結算畫面 (勝利/失敗) ================= -->
+        <div id="end-screen">
+            <!-- 勝利內容 -->
+            <div id="victory-content" class="hidden">
+                <h1 style="color: #55ff55;">系統解鎖成功！</h1>
+                <p style="font-size: 20px; color: #fff;">陳定南長官，您以「誠實與精確」完成了審查。</p>
+                <p style="font-size: 18px;">機密檔案解鎖密碼為：</p>
+                <div class="password-box">CLEAN_1981</div>
+            </div>
+
+            <!-- 失敗內容 -->
+            <div id="defeat-content" class="hidden">
+                <h1 class="game-over-title">審查失敗！</h1>
+                <p style="font-size: 20px; color: #fff;">由於過度疏忽，幽靈連署已嚴重污染選舉公正性。</p>
+                <p style="font-size: 18px; color: #aaa;">陳定南精神：不容許一絲造假，請再更仔細一點！</p>
+            </div>
+
             <br><br>
             <button class="btn btn-pass" onclick="location.reload()" style="font-size: 16px;">重新啟動系統</button>
             <br><br>
@@ -271,49 +313,123 @@
     </div>
 
     <script>
-        // --- 背景音樂觸發處理 ---
         const bgm = document.getElementById('bgm');
-        
-        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
-        window.addEventListener('click', () => {
-            if (bgm.paused) {
-                bgm.play().catch(error => {
-                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
-                });
-            }
-        }, { once: true });
+        let musicStarted = false;
 
-        // 假資料庫
+        function startMusic() {
+            if (!musicStarted && bgm.paused) {
+                bgm.play().catch(e => console.log("音樂播放失敗", e));
+                musicStarted = true;
+            }
+        }
+
+        // ================= 劇情對話系統 =================
+        const dialogues = [
+            "我是宜蘭縣長，陳定南。",
+            "最近我們收到密報，有不肖勢力企圖用「假身分證」進行幽靈連署，干擾選舉公正！",
+            "你的任務很簡單：仔細比對右側的「送審單據」與左側的「身分證真本」。",
+            "記住，只要有一字之差、一個數字不對，就是造假！立刻退件！",
+            "我們的容錯率只有兩次（2 HP）。千萬別讓舞弊的傢伙得逞，準備好了嗎？"
+        ];
+        
+        let currentDiagIndex = 0;
+        let charIndex = 0;
+        let isTyping = false;
+        let typeInterval;
+        const diagTextEl = document.getElementById('dialogue-text');
+        const btnNext = document.getElementById('btn-next');
+
+        function typeWriter() {
+            if (charIndex < dialogues[currentDiagIndex].length) {
+                diagTextEl.innerHTML += dialogues[currentDiagIndex].charAt(charIndex);
+                charIndex++;
+                typeInterval = setTimeout(typeWriter, 50);
+            } else {
+                isTyping = false;
+                if (currentDiagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "開始審查 ➔";
+                    btnNext.style.color = "#ffff33";
+                    btnNext.style.borderColor = "#ffff33";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            }
+        }
+
+        function showDialogue() {
+            startMusic();
+            diagTextEl.innerHTML = "";
+            charIndex = 0;
+            isTyping = true;
+            typeWriter();
+        }
+
+        function nextDialogue() {
+            startMusic();
+            if (isTyping) {
+                // 如果正在打字，點擊則直接顯示全句
+                clearTimeout(typeInterval);
+                diagTextEl.innerHTML = dialogues[currentDiagIndex];
+                isTyping = false;
+                if (currentDiagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "開始審查 ➔";
+                    btnNext.style.color = "#ffff33";
+                    btnNext.style.borderColor = "#ffff33";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            } else {
+                currentDiagIndex++;
+                if (currentDiagIndex < dialogues.length) {
+                    showDialogue();
+                } else {
+                    startGamePlay();
+                }
+            }
+        }
+
+        function skipDialogue() {
+            startMusic();
+            clearTimeout(typeInterval);
+            startGamePlay();
+        }
+
+        function startGamePlay() {
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            nextRound(); // 啟動遊戲
+        }
+
+        // 初始化第一句對話
+        window.onload = () => {
+            showDialogue();
+        };
+
+        // ================= 遊戲核心邏輯 =================
         const names = ["王大明", "李小華", "陳美麗", "林建國", "張志強", "黃淑芬", "吳家豪", "劉雅婷", "蔡宗翰", "楊欣儀"];
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        // 遊戲狀態
         let score = 0;
         const targetScore = 3;
+        let hp = 2; // 設定血量為 2
         let isCurrentMatching = true; 
-        
         let currentIDData = {};
         let currentFormData = {};
 
-        // 隨機產生身分證字號
         function generateIDNumber() {
             let id = chars.charAt(Math.floor(Math.random() * chars.length));
-            id += (Math.floor(Math.random() * 2) + 1); // 1或2
-            for(let i=0; i<8; i++){
-                id += Math.floor(Math.random() * 10);
-            }
+            id += (Math.floor(Math.random() * 2) + 1);
+            for(let i=0; i<8; i++) id += Math.floor(Math.random() * 10);
             return id;
         }
 
-        // 隨機產生生日
         function generateDOB() {
-            let year = Math.floor(Math.random() * 40) + 1960; // 1960-1999
+            let year = Math.floor(Math.random() * 40) + 1960;
             let month = Math.floor(Math.random() * 12) + 1;
-            let day = Math.floor(Math.random() * 28) + 1; // 簡化處理，最多28天
+            let day = Math.floor(Math.random() * 28) + 1;
             return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         }
 
-        // 產生一組資料
         function generateProfile() {
             return {
                 name: names[Math.floor(Math.random() * names.length)],
@@ -322,21 +438,16 @@
             };
         }
 
-        // 弄亂資料 (製造不通過的條件)
         function tamperData(data) {
             let tampered = { ...data };
-            let tamperType = Math.floor(Math.random() * 3); // 隨機決定弄亂哪一個欄位
-            
+            let tamperType = Math.floor(Math.random() * 3); 
             if (tamperType === 0) {
-                // 弄亂名字 (加個字或改個字)
                 tampered.name = tampered.name.substring(0, 2) + "偽"; 
             } else if (tamperType === 1) {
-                // 弄亂身分證 (改掉最後一個數字)
                 let oldChar = tampered.idNumber.slice(-1);
                 let newChar = oldChar === '9' ? '0' : String(parseInt(oldChar) + 1);
                 tampered.idNumber = tampered.idNumber.slice(0, -1) + newChar;
             } else {
-                // 弄亂生日 (年份加1)
                 let parts = tampered.dob.split('-');
                 parts[0] = String(parseInt(parts[0]) + 1);
                 tampered.dob = parts.join('-');
@@ -344,21 +455,20 @@
             return tampered;
         }
 
-        // 初始化新的一回合
+        function updateHPDisplay() {
+            const hpDisplay = document.getElementById('hp-display');
+            if(hp === 2) hpDisplay.innerText = "❤❤";
+            else if(hp === 1) hpDisplay.innerText = "❤🖤";
+            else hpDisplay.innerText = "🖤🖤";
+        }
+
         function nextRound() {
-            // 產生基準資料 (身分證)
             currentIDData = generateProfile();
-            
-            // 隨機決定這回合是「一致」還是「不一致」 (50% 機率)
             isCurrentMatching = Math.random() >= 0.5;
 
-            if (isCurrentMatching) {
-                currentFormData = { ...currentIDData };
-            } else {
-                currentFormData = tamperData(currentIDData);
-            }
+            if (isCurrentMatching) currentFormData = { ...currentIDData };
+            else currentFormData = tamperData(currentIDData);
 
-            // 更新畫面
             document.getElementById('id-name').innerText = currentIDData.name;
             document.getElementById('id-number').innerText = currentIDData.idNumber;
             document.getElementById('id-dob').innerText = currentIDData.dob;
@@ -367,49 +477,56 @@
             document.getElementById('form-number').innerText = currentFormData.idNumber;
             document.getElementById('form-dob').innerText = currentFormData.dob;
             
-            // 預設訊息
             let msgBox = document.getElementById('message-box');
             msgBox.innerText = "請比對兩側資料...";
             msgBox.className = "";
         }
 
-        // 檢查玩家選擇
         function checkAnswer(playerChoicePass) {
             let msgBox = document.getElementById('message-box');
             
-            // 判斷對錯：如果玩家選擇(通過/不通過)與實際是否相符(一致/不一致)相同
             if (playerChoicePass === isCurrentMatching) {
-                // 答對了
                 score++;
                 document.getElementById('score').innerText = score;
                 
                 if (score >= targetScore) {
-                    // 達成目標，顯示密碼
-                    document.getElementById('game-ui').classList.add('hidden');
-                    document.getElementById('victory-screen').style.display = 'block';
+                    endGame(true); // 勝利
                 } else {
-                    // 沒達成目標，繼續下一關
                     msgBox.innerText = ">> 判斷正確！進行下一份審核。";
                     msgBox.className = "msg-success";
-                    setTimeout(nextRound, 800); // 延遲一下讓玩家看到成功訊息
+                    setTimeout(nextRound, 800);
                 }
             } else {
-                // 答錯了，扣分或單純提示錯誤
-                msgBox.innerText = ">> 判斷錯誤！請仔細比對！";
-                msgBox.className = "msg-error";
-                // 答錯給予懲罰效果 (螢幕震動)
-                document.getElementById('game-container').animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-10px)' },
-                    { transform: 'translateX(10px)' },
-                    { transform: 'translateX(0)' }
-                ], { duration: 300 });
+                hp--;
+                updateHPDisplay();
+                
+                if (hp <= 0) {
+                    endGame(false); // 失敗
+                } else {
+                    msgBox.innerText = ">> 判斷錯誤！容錯率下降，請仔細比對！";
+                    msgBox.className = "msg-error";
+                    document.getElementById('game-screen').classList.add('shake-effect');
+                    setTimeout(() => {
+                        document.getElementById('game-screen').classList.remove('shake-effect');
+                        nextRound();
+                    }, 800);
+                }
             }
         }
 
-        // 遊戲載入後啟動第一回合
-        window.onload = nextRound;
-
+        function endGame(isVictory) {
+            document.getElementById('game-screen').style.display = 'none';
+            const endScreen = document.getElementById('end-screen');
+            endScreen.style.display = 'block';
+            
+            if (isVictory) {
+                document.getElementById('victory-content').classList.remove('hidden');
+                endScreen.style.borderColor = "#55ff55";
+            } else {
+                document.getElementById('defeat-content').classList.remove('hidden');
+                endScreen.style.borderColor = "#ff3333";
+            }
+        }
     </script>
 </body>
 </html>
