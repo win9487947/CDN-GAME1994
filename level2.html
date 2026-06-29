@@ -15,6 +15,7 @@
             --stamp-blue: #004d99;
             --crt-green: #33ff33;
             --border-heavy: 4px solid #1a1a1a;
+            --hp-color: #ff3333;
         }
 
         body {
@@ -43,6 +44,82 @@
             pointer-events: none;
         }
 
+        /* === 劇情對話視窗樣式 === */
+        #intro-container {
+            width: 800px;
+            max-width: 95%;
+            background-color: #050a05;
+            border: 4px solid var(--crt-green);
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
+            position: relative;
+            z-index: 10;
+            color: var(--crt-green);
+        }
+
+        .dialogue-wrapper {
+            display: flex;
+            gap: 20px;
+            background: #000;
+            border: 2px dashed var(--crt-green);
+            padding: 20px;
+            align-items: flex-start;
+            min-height: 160px;
+        }
+
+        .portrait-box {
+            width: 120px;
+            height: 150px;
+            border: 3px solid var(--crt-green);
+            background: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .portrait-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            image-rendering: pixelated;
+        }
+
+        .dialogue-content {
+            flex-grow: 1;
+        }
+
+        .speaker-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffff33;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        #dialogue-text {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #fff;
+        }
+
+        .intro-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn-panel {
+            font-family: inherit; font-size: 20px; padding: 10px 25px;
+            border: 2px solid var(--crt-green); background: #000; color: var(--crt-green);
+            cursor: pointer; font-weight: bold; transition: all 0.2s;
+        }
+        .btn-panel:hover { background: var(--term-dark-green, #004400); color: #fff; box-shadow: 0 0 10px var(--crt-green); }
+        .btn-skip { border-color: #666; color: #666; }
+        .btn-skip:hover { background: #222; color: #aaa; box-shadow: none; }
+
+        /* === 遊戲主貨櫃 === */
         #game-container {
             background-color: #7b8577; /* 復古軍公教鐵灰綠辦公桌 */
             border: 8px solid #333;
@@ -69,6 +146,7 @@
 
         header h1 { margin: 0; font-size: 22px; letter-spacing: 2px; }
         #sys-msg { margin-top: 5px; font-size: 18px; color: #ffffaa; font-weight: bold; min-height: 24px;}
+        .status-bar-info { display: flex; justify-content: space-between; padding: 5px 20px; font-size: 16px; color: #bbb; }
 
         /* 左側區塊：建商對話與物價表 */
         .left-panel { display: flex; flex-direction: column; gap: 20px; }
@@ -170,24 +248,26 @@
         .stamp-reject { color: var(--stamp-red); border-color: var(--stamp-red); }
         .stamp-pass { color: var(--stamp-blue); border-color: var(--stamp-blue); }
 
+        /* 結算畫面共同基礎 */
+        #victory-screen, #defeat-screen {
+            display: none; text-align: center; padding: 50px; grid-column: 1 / -1; 
+        }
+        
         /* 勝利畫面 */
         #victory-screen {
-            display: none; text-align: center; background-color: #0a0a0a;
-            color: #fff; padding: 50px; grid-column: 1 / -1; 
-            border: 4px solid #ffff33;
-            box-shadow: inset 0 0 20px #ffff33;
+            background-color: #0a0a0a; color: #fff; border: 4px solid #ffff33; box-shadow: inset 0 0 20px #ffff33;
         }
+        /* 失敗畫面 */
+        #defeat-screen {
+            background-color: #1a0000; color: #fff; border: 4px solid #ff3333; box-shadow: inset 0 0 20px #ff3333;
+        }
+
         .secret-code {
-            font-size: 60px;
-            color: #ffff33;
-            background: #222;
-            padding: 20px;
-            border: 4px dashed #ffff33;
-            display: inline-block;
-            margin: 20px 0;
-            letter-spacing: 10px;
-            text-shadow: 0 0 10px #ffff33;
+            font-size: 60px; color: #ffff33; background: #222; padding: 20px; border: 4px dashed #ffff33;
+            display: inline-block; margin: 20px 0; letter-spacing: 10px; text-shadow: 0 0 10px #ffff33;
         }
+        .defeat-title { font-size: 40px; color: #ff3333; margin-top: 0; text-shadow: 0 0 10px #ff3333; }
+        
         .hidden { display: none !important; }
 
         @keyframes shake {
@@ -211,13 +291,35 @@
         <source src="HTMLMUSIC01.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="game-container">
+    <!-- 劇情對話區塊 -->
+    <div id="intro-container">
+        <div class="dialogue-wrapper">
+            <div class="portrait-box">
+                <img src="CND.png" alt="陳定南頭像">
+            </div>
+            <div class="dialogue-content">
+                <div class="speaker-title" id="speaker-title">陳定南 (縣長)</div>
+                <div id="dialogue-text">系統加載中...</div>
+            </div>
+        </div>
+        <div class="intro-controls">
+            <button class="btn-panel btn-skip" onclick="skipDialogue()">快速跳過 >></button>
+            <button class="btn-panel" id="btn-next" onclick="nextDialogue()">下一句 ▼</button>
+        </div>
+        <div style="text-align: center; font-size: 14px; color: #55aa55; margin-top: 15px; animation: blink 2s infinite;">(點擊按鈕將同步啟動音訊模組)</div>
+    </div>
+
+    <!-- 遊戲主畫面 (初始隱藏) -->
+    <div id="game-container" class="hidden">
         <!-- 頂部資訊 -->
         <header>
-            <h1>【機密】宜蘭縣政府 公共工程查核終端機</h1>
+            <h1>【機密】宜蘭縣政府 公共工程經費查核終端機</h1>
+            <div class="status-bar-info">
+                <span>操作員：陳定南 縣長</span>
+                <span style="color: #ff3333; font-weight: bold; font-size: 18px;" id="hp-display">容錯率(HP): ❤❤❤</span>
+                <span>案件查核進度: <span id="level-display" style="color: #fff;">1</span> / 4</span>
+            </div>
             <div id="sys-msg">系統就緒。請核對右側報表金額是否與左側公定價相符。</div>
-            <!-- 提示使用者點擊以觸發音樂 -->
-            <div style="font-size: 14px; color: #55aa55; margin-top: 10px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
         </header>
 
         <!-- 左側面板：公定價與建商對話 -->
@@ -275,25 +377,119 @@
             <p style="color: #888;">(1981年上任宜蘭縣長，2005年回鍋參選，陳定南精神永存)</p>
             <button class="btn btn-pass" onclick="location.reload()" style="margin-top: 20px;">重新啟動系統</button>
             <br><br>
-            <!-- 加入返回首頁的按鈕，方便玩家回到主選單 -->
-            <a href="index.html" style="color: var(--crt-green); font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
+            <a href="index.html" style="color: #33ff33; font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
+        </div>
+
+        <!-- 失敗逮捕畫面 -->
+        <div id="defeat-screen">
+            <h1 class="defeat-title">審查失敗！執法防線全面失守！</h1>
+            <p style="font-size: 22px; color: #ff6666;">由於你在查核中連續出現 3 次重大疏忽，被貪腐集團抓到把柄！</p>
+            <p style="font-size: 20px; color: #ddd; line-height: 1.6; max-width: 80%; margin: 20px auto;">
+                邪惡建商勾結了被收買的檢警調勢力，反咬你渎職並將你強行拘捕入罪...<br>
+                宜蘭公共工程的未來，這下徹底落入那些利慾薰心的邪惡廠商手中了。
+            </p>
+            <button class="btn btn-reject" onclick="location.reload()" style="margin-top: 20px; background: #300;">重新加載終端機</button>
+            <br><br>
+            <a href="index.html" style="color: #ff3333; font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
         </div>
     </div>
 
     <script>
-        // --- 背景音樂觸發處理 ---
-        const bgm = document.getElementById('bgm');
-        
-        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
-        window.addEventListener('click', () => {
-            if (bgm.paused) {
-                bgm.play().catch(error => {
-                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
-                });
-            }
-        }, { once: true });
+        // --- 劇情對話資料庫 ---
+        const dialogues = [
+            { speaker: "陳定南 (縣長)", text: "（砰！重重拍桌聲）把你的黑金和茶葉罐通通帶走！滾出宜蘭縣政府！" },
+            { speaker: "陳定南 (縣長)", text: "呼……這些不肖厂商，居然想用一整箱現鈔來收買我，企圖讓冬山河偷工減料的假帳過關。" },
+            { speaker: "陳定南 (縣長)", text: "你就是新來的稽查員吧？剛剛那一幕你也看到了。在這張辦公桌前，我們面對的是排山倒海的政商關說與黑道威脅。" },
+            { speaker: "陳定南 (縣長)", text: "公共工程的每一分錢，都是縣民流血流汗的稅金。我們不容許一絲造假，帳目出現問題就必須馬上駁回！" },
+            { speaker: "陳定南 (縣長)", text: "聽好了，等下面談時，建商 A、B、C、D 會送來材料報表。左側是縣府核定的公定單價。" },
+            { speaker: "陳定南 (縣長)", text: "你必須仔細核對：【項目數量】乘上【公定單價】，是否與他們報表上的【小計】完全一致！" },
+            { speaker: "陳定南 (縣長)", text: "記住，外面的貪腐集團與被收買的邪惡檢警都在暗中盯著我們。我們的容錯率只有 3 次（3 HP）。" },
+            { speaker: "陳定南 (縣長)", text: "如果出錯滿 3 次，放行了浮報的假帳，我們就會被檢警以瀆職罪逮捕，到時一切就全落入邪惡建商的手中了！動手吧！" }
+        ];
 
-        // 1. 基本設定：公定材料價格
+        let diagIndex = 0;
+        let charIndex = 0;
+        let isTyping = false;
+        let typeTimer;
+        
+        const textEl = document.getElementById('dialogue-text');
+        const speakerEl = document.getElementById('speaker-title');
+        const btnNext = document.getElementById('btn-next');
+        const bgm = document.getElementById('bgm');
+
+        function startBGM() {
+            if (bgm.paused) {
+                bgm.play().catch(e => console.log("音樂啟動受阻:", e));
+            }
+        }
+
+        function typeWriter() {
+            const currentLine = dialogues[diagIndex].text;
+            if (charIndex < currentLine.length) {
+                textEl.innerHTML += currentLine.charAt(charIndex);
+                charIndex++;
+                typeTimer = setTimeout(typeWriter, 40);
+            } else {
+                isTyping = false;
+                if (diagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "開始查核 ➔";
+                    btnNext.style.color = "#ffff33";
+                    btnNext.style.borderColor = "#ffff33";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            }
+        }
+
+        function playDialogue() {
+            startBGM();
+            clearTimeout(typeTimer);
+            textEl.innerHTML = "";
+            charIndex = 0;
+            isTyping = true;
+            speakerEl.innerText = dialogues[diagIndex].speaker;
+            typeWriter();
+        }
+
+        function nextDialogue() {
+            startBGM();
+            if (isTyping) {
+                clearTimeout(typeTimer);
+                textEl.innerHTML = dialogues[diagIndex].text;
+                isTyping = false;
+                if (diagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "開始查核 ➔";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            } else {
+                diagIndex++;
+                if (diagIndex < dialogues.length) {
+                    playDialogue();
+                } else {
+                    enterGame();
+                }
+            }
+        }
+
+        function skipDialogue() {
+            startBGM();
+            clearTimeout(typeTimer);
+            enterGame();
+        }
+
+        function enterGame() {
+            document.getElementById('intro-container').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            initGame();
+        }
+
+        // 初始化劇情
+        window.onload = () => {
+            playDialogue();
+        };
+
+        // --- 遊戲主邏輯區 (保留核心不變，加入生命扣除與結束功能) ---
         const basePrices = [
             { id: 'cement', name: '水泥 (包)', price: 300 },
             { id: 'rebar', name: '鋼筋 (噸)', price: 500 },
@@ -301,7 +497,6 @@
             { id: 'labor', name: '人力費 (天)', price: 180 }
         ];
 
-        // 2. 關卡設定：建商A~D
         const builders = [
             { name: "建商 A (土方包商)", quote: "「陳縣長，這點小意思，大家交個朋友嘛，報表算一下很快的啦！」" },
             { name: "建商 B (營造少東)", quote: "「哎呀，最近物價波動大，我們這報價絕對是合情合理，您通融通融。」" },
@@ -310,12 +505,17 @@
         ];
 
         let currentLevel = 0;
-        let isCurrentFraud = false; // 這回合建商是否有浮報？
+        let isCurrentFraud = false;
+        let hp = 3; // 三滴血機制
 
-        // 遊戲初始化
+        function updateHPDisplay() {
+            const hpDisplay = document.getElementById('hp-display');
+            hpDisplay.innerText = "容錯率(HP): " + "❤".repeat(hp) + "🖤".repeat(3 - hp);
+        }
+
         function initGame() {
-            // 渲染左側公定物價表
             const priceListDiv = document.getElementById('price-list-content');
+            priceListDiv.innerHTML = '';
             basePrices.forEach(item => {
                 priceListDiv.innerHTML += `
                     <div class="price-row">
@@ -324,11 +524,12 @@
                     </div>
                 `;
             });
+            updateHPDisplay();
             loadLevel(currentLevel);
         }
 
-        // 載入關卡
         function loadLevel(levelIndex) {
+            document.getElementById('level-display').innerText = levelIndex + 1;
             const builder = builders[levelIndex];
             document.getElementById('builder-name').innerText = builder.name;
             document.getElementById('builder-quote').innerText = builder.quote;
@@ -339,28 +540,21 @@
             generateReport();
         }
 
-        // 產生報表資料
         function generateReport() {
             const tbody = document.getElementById('report-body');
             tbody.innerHTML = '';
             
-            // 隨機決定這關是否要造假 (為了遊戲性，確保有真有假)
-            // 第一關強制造假，第二關強制為真，後面隨機，讓玩家適應規則
             if (currentLevel === 0) isCurrentFraud = true;
             else if (currentLevel === 1) isCurrentFraud = false;
             else isCurrentFraud = Math.random() > 0.5;
 
-            // 隨機挑選一個項目來造假
             const fraudTargetIndex = Math.floor(Math.random() * basePrices.length);
 
             basePrices.forEach((item, index) => {
-                // 隨機產生數量 2 ~ 9
                 const qty = Math.floor(Math.random() * 8) + 2; 
                 let subtotal = item.price * qty;
 
-                // 如果這回合判定為造假，且輪到這個項目被改
                 if (isCurrentFraud && index === fraudTargetIndex) {
-                    // 浮報價格 (增加 100 ~ 900 元)
                     const extra = (Math.floor(Math.random() * 9) + 1) * 100;
                     subtotal += extra;
                 }
@@ -375,50 +569,59 @@
             });
         }
 
-        // 檢查玩家選擇 (isPass = true 代表玩家按了核准)
         function checkAnswer(isPlayerPass) {
             const msgBox = document.getElementById('sys-msg');
             const stamp = document.getElementById('stamp');
             const container = document.getElementById('game-container');
             
-            // 動畫與音效視覺呈現
             stamp.innerText = isPlayerPass ? "核准" : "駁回";
             stamp.className = isPlayerPass ? "stamp-overlay stamp-show stamp-pass" : "stamp-overlay stamp-show stamp-reject";
 
-            // 判斷邏輯：
-            // 如果報表造假 (isFraud)，玩家必須拒絕 (!isPass)。
-            // 如果報表正確 (!isFraud)，玩家必須核准 (isPass)。
             const isCorrectChoice = (isCurrentFraud && !isPlayerPass) || (!isCurrentFraud && isPlayerPass);
 
             setTimeout(() => {
-                stamp.classList.remove('stamp-show'); // 隱藏印章
+                stamp.classList.remove('stamp-show');
                 
                 if (isCorrectChoice) {
-                    // 答對了，進入下一關
                     currentLevel++;
                     if (currentLevel >= builders.length) {
-                        // 通關
+                        // 4關全過 -> 勝利
                         document.querySelector('.left-panel').classList.add('hidden');
                         document.querySelector('.right-panel').classList.add('hidden');
                         document.getElementById('victory-screen').style.display = 'block';
                         msgBox.innerText = ">> 全數審核完畢。";
                     } else {
-                        // 下一關
                         loadLevel(currentLevel);
                     }
                 } else {
-                    // 答錯了，懲罰特效
-                    msgBox.innerText = ">> 警告：查核錯誤！請重新計算報表與公定價的乘積！";
-                    msgBox.style.color = "#ff5555";
-                    
-                    container.classList.add('shake-effect');
-                    setTimeout(() => container.classList.remove('shake-effect'), 300);
+                    // 扣血機制
+                    hp--;
+                    updateHPDisplay();
+
+                    if (hp <= 0) {
+                        // 扣滿3次 -> 失敗結局
+                        document.querySelector('.left-panel').classList.add('hidden');
+                        document.querySelector('.right-panel').classList.add('hidden');
+                        document.getElementById('defeat-screen').style.display = 'block';
+                        msgBox.innerText = ">> 終端機遭外部強制鎖定。";
+                        msgBox.style.color = "#ff3333";
+                    } else {
+                        // 扣血但尚未死亡，重新生成當前報表要求玩家重查
+                        msgBox.innerText = `>> 警告：查核錯誤！扣除 1 HP！(剩餘 ${hp} 次機會)`;
+                        msgBox.style.color = "#ff5555";
+                        
+                        container.classList.add('shake-effect');
+                        setTimeout(() => container.classList.remove('shake-effect'), 300);
+                        generateReport(); 
+                    }
                 }
-            }, 800); // 印章停留時間
+            }, 800);
         }
 
-        // 啟動遊戲
-        window.onload = initGame;
+        // 全域首次點擊解鎖音樂監聽
+        window.addEventListener('click', () => {
+            startBGM();
+        }, { once: true });
     </script>
 </body>
 </html>
