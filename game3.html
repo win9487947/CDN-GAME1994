@@ -64,14 +64,41 @@
             letter-spacing: 1px;
         }
 
-        /* === 開始畫面 === */
-        #start-screen {
-            padding: 40px;
-            text-align: center;
+        /* === 劇情對話畫面樣式 === */
+        #intro-container {
+            padding: 30px;
+            background-color: #000;
+            color: var(--text-green);
         }
-        #start-screen h1 { font-size: 36px; text-shadow: 0 0 10px var(--text-green); margin-bottom: 20px;}
-        .story-text { font-size: 18px; line-height: 1.8; text-align: left; background: #0a0a0a; padding: 20px; border: var(--border-style); margin-bottom: 30px;}
-        
+
+        #intro-container h1 {
+            text-align: center; font-size: 32px; margin-top: 0; 
+            border-bottom: 2px dashed var(--text-green); padding-bottom: 10px;
+        }
+
+        .dialogue-wrapper {
+            display: flex; gap: 20px; background: #050505;
+            border: 2px solid var(--text-green); padding: 20px;
+            align-items: flex-start; min-height: 140px; text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .portrait-box {
+            width: 120px; height: 140px; border: 3px solid var(--text-green);
+            background: #111; display: flex; justify-content: center; align-items: center;
+            flex-shrink: 0;
+        }
+
+        .portrait-box img {
+            width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated;
+        }
+
+        .dialogue-content { flex-grow: 1; }
+        .speaker-title { font-size: 24px; font-weight: bold; color: #ffff33; margin-bottom: 10px; }
+        #dialogue-text { font-size: 20px; line-height: 1.6; color: #fff; }
+
+        .intro-controls { display: flex; justify-content: space-between; margin-top: 15px; }
+
         /* === 遊戲畫面 === */
         #game-screen { display: flex; height: 500px; }
         
@@ -103,14 +130,13 @@
         /* 黑夜探照燈場景 */
         #night-scene {
             flex-grow: 1;
-            background-color: #111; /* 黑暗背景 */
+            background-color: #111; 
             position: relative;
             overflow: hidden;
             cursor: crosshair;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 預設探照燈中心點 */
             --x: 50%; --y: 50%; 
         }
         
@@ -120,7 +146,7 @@
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle 120px at var(--x) var(--y), transparent 0%, rgba(0,0,0,0.98) 100%);
-            pointer-events: none; /* 讓滑鼠事件穿透 */
+            pointer-events: none; 
             z-index: 5;
         }
 
@@ -160,9 +186,9 @@
             font-family: inherit; font-size: 20px; padding: 12px 30px;
             border: 2px solid; cursor: pointer; font-weight: bold;
             background: #000; transition: all 0.1s; letter-spacing: 2px;
+            color: var(--text-green); border-color: var(--text-green);
         }
         .btn:active { transform: translateY(2px); }
-        .btn-start { color: var(--text-green); border-color: var(--text-green); box-shadow: 0 0 10px var(--text-green); animation: blink 1.5s infinite;}
         .btn-pass { color: var(--text-blue); border-color: var(--text-blue); }
         .btn-pass:hover { background: #002233; }
         .btn-impound { color: var(--text-alert); border-color: var(--text-alert); }
@@ -207,23 +233,28 @@
             SYSTEM DEV: D1144241015-王睿朋 | D1144241019-黃永鈞
         </div>
 
-        <div id="start-screen">
-            <h1>【黑夜追緝】抓捕盜採砂石車</h1>
-            
-            <div style="font-size: 14px; color: #55aa55; margin-bottom: 20px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
-            
-            <div class="story-text">
-                <p>1980年代，台北地區對建築砂石需求量暴增，大批不肖業者與黑道勢力勾結，以合法掩護非法，在宜蘭人的生命之河——「蘭陽溪」進行大規模越界、超挖與盜採砂石。</p>
-                <p>陳定南收到市民檢舉有人盜採砂石，展現極大魄力，親自帶領警察在深夜埋伏，大力掃蕩盜採砂石的集團。</p>
-                <p style="color: #ffff33;">任務指示：滑動滑鼠使用手電筒探照，核對車牌是否在左側的「合法申報名單」內。正確請【放行】，錯誤請【扣押】。</p>
+        <div id="intro-container">
+            <h1>【黑夜追緝行動】情報匯報</h1>
+            <div class="dialogue-wrapper">
+                <div class="portrait-box">
+                    <img id="portrait-img" src="SHMIN.png" alt="對話頭像">
+                </div>
+                <div class="dialogue-content">
+                    <div class="speaker-title" id="speaker-title">宜蘭熱心市民</div>
+                    <div id="dialogue-text">系統加載中...</div>
+                </div>
             </div>
-            <button class="btn btn-start" onclick="startGame()">開始抓捕</button>
+            <div class="intro-controls">
+                <button class="btn" onclick="skipDialogue()" style="color:#888; border-color:#555; font-size: 16px; padding: 8px 20px;">快速跳過 >></button>
+                <button class="btn" id="btn-next" onclick="nextDialogue()" style="font-size: 18px; padding: 10px 25px;">下一句 ▼</button>
+            </div>
+            <div style="text-align: center; font-size: 14px; color: #55aa55; margin-top: 15px; animation: blink 2s infinite;">(點擊按鈕將同步啟動音訊模組)</div>
         </div>
 
         <div id="game-screen" class="hidden">
             <div id="left-panel">
                 <h3>合法申報名單</h3>
-                <ul id="plate-list">
+                <ul id="plate-list" translate="no">
                     </ul>
             </div>
 
@@ -241,7 +272,7 @@
   |___________________|    |   |
    (O)             (O) '---(O)-'
                         <br>
-                        <div class="license-plate" id="truck-plate">XX-0000</div>
+                        <div class="license-plate" id="truck-plate" translate="no">XX-0000</div>
                     </div>
                 </div>
 
@@ -269,23 +300,114 @@
     <script>
         // --- 背景音樂觸發處理 ---
         const bgm = document.getElementById('bgm');
+        let musicStarted = false;
         
-        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
-        window.addEventListener('click', () => {
-            if (bgm.paused) {
-                bgm.play().catch(error => {
-                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
-                });
+        function startMusic() {
+            if (!musicStarted && bgm.paused) {
+                bgm.play().catch(error => console.log("音樂播放受阻：", error));
+                musicStarted = true;
             }
-        }, { once: true });
+        }
 
-        // === 遊戲變數 ===
+        // --- 豐富長劇情資料庫 ---
+        const dialogues = [
+            { speaker: "宜蘭熱心市民", text: "陳縣長！不好了！那群有黑道背景的不肖砂石業者越來越猖狂了！", img: "SHMIN.png" },
+            { speaker: "宜蘭熱心市民", text: "他們後半夜開著大卡車，在我們的生命之河——蘭陽溪大規模盜採砂石，整條河床都要被挖空了！", img: "SHMIN.png" },
+            { speaker: "宜蘭熱心市民", text: "而且好多都是沒申報的非法砂石車，在路上橫衝直撞，嚴重威脅我們宜蘭人的安全啊！", img: "SHMIN.png" },
+            { speaker: "隨行警官", text: "報告縣長，這夥人非常狡猾，白天拿著合法合約當掩護，深夜才越界超挖，而且沿路都派黑衣人把風放哨，很難抓到現行犯。", img: "GC.png" },
+            { speaker: "陳定南 (縣長)", text: "（神色嚴厲）蘭陽溪是宜蘭人的根！這群人為了一己私利破壞國土、危害縣民，簡直目無王法！", img: "CND.png" },
+            { speaker: "隨行警官", text: "縣長，深夜溪床視線太差，黑道甚至可能有武器，現場太危險了，您留在辦公室，我們帶隊去就好！", img: "GC.png" },
+            { speaker: "陳定南 (縣長)", text: "我不怕黑道，我只怕宜蘭的優美環境毀在我們這代人手裡！拿我的強力手電筒來，我親自帶隊去埋伏！", img: "CND.png" },
+            { speaker: "陳定南 (縣長)", text: "全體基層弟兄換上便服，跟我一起蹲入蘆葦叢。稽查員，等車輛經過，立刻用探照燈核對【合法申報名單】！", img: "CND.png" },
+            { speaker: "陳定南 (縣長)", text: "如果發現不在名單上的車牌，當場依法扣押！核對無誤的就放行。絕不寬貸！出擊！", img: "CND.png" }
+        ];
+
+        let diagIndex = 0;
+        let charIndex = 0;
+        let isTyping = false;
+        let typeTimer;
+
+        const textEl = document.getElementById('dialogue-text');
+        const speakerEl = document.getElementById('speaker-title');
+        const portraitImg = document.getElementById('portrait-img');
+        const btnNext = document.getElementById('btn-next');
+
+        function typeWriter() {
+            const currentLine = dialogues[diagIndex].text;
+            if (charIndex < currentLine.length) {
+                textEl.innerHTML += currentLine.charAt(charIndex);
+                charIndex++;
+                typeTimer = setTimeout(typeWriter, 35);
+            } else {
+                isTyping = false;
+                if (diagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "出發埋伏 ➔";
+                    btnNext.style.color = "#ffff33";
+                    btnNext.style.borderColor = "#ffff33";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            }
+        }
+
+        function playDialogue() {
+            startMusic();
+            clearTimeout(typeTimer);
+            textEl.innerHTML = "";
+            charIndex = 0;
+            isTyping = true;
+
+            const current = dialogues[diagIndex];
+            speakerEl.innerText = current.speaker;
+            portraitImg.src = current.img;
+            
+            typeWriter();
+        }
+
+        function nextDialogue() {
+            startMusic();
+            if (isTyping) {
+                clearTimeout(typeTimer);
+                textEl.innerHTML = dialogues[diagIndex].text;
+                isTyping = false;
+                if (diagIndex === dialogues.length - 1) {
+                    btnNext.innerText = "出發埋伏 ➔";
+                } else {
+                    btnNext.innerText = "下一句 ▼";
+                }
+            } else {
+                diagIndex++;
+                if (diagIndex < dialogues.length) {
+                    playDialogue();
+                } else {
+                    enterGame();
+                }
+            }
+        }
+
+        function skipDialogue() {
+            startMusic();
+            clearTimeout(typeTimer);
+            enterGame();
+        }
+
+        function enterGame() {
+            document.getElementById('intro-container').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            startGame();
+        }
+
+        // 初始化劇情
+        window.onload = () => {
+            playDialogue();
+        };
+
+        // === 遊戲核心變數與邏輯 ===
         const totalRounds = 5;
         let currentRound = 1;
         let legalPlates = [];
         let isCurrentLegal = false;
 
-        // 生成隨機車牌 (如 AB-1234)
         function generateRandomPlate() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const c1 = chars.charAt(Math.floor(Math.random() * chars.length));
@@ -294,12 +416,7 @@
             return `${c1}${c2}-${num}`;
         }
 
-        // 開始遊戲初始化
         function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-
-            // 1. 生成 10 個合法車牌
             legalPlates = [];
             const listUl = document.getElementById('plate-list');
             listUl.innerHTML = '';
@@ -309,10 +426,8 @@
                 listUl.innerHTML += `<li>${plate}</li>`;
             }
 
-            // 2. 啟動手電筒特效
             const nightScene = document.getElementById('night-scene');
             nightScene.addEventListener('mousemove', (e) => {
-                // 取得鼠標在 night-scene 內的相對座標
                 const rect = nightScene.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -320,33 +435,27 @@
                 nightScene.style.setProperty('--y', `${y}px`);
             });
 
-            // 3. 進入第一回合
             nextRound();
         }
 
-        // 載入下一台車
         function nextRound() {
             if (currentRound > totalRounds) {
-                // 勝利
                 document.getElementById('game-screen').classList.add('hidden');
                 document.getElementById('victory-screen').classList.remove('hidden');
                 return;
             }
 
             document.getElementById('round-display').innerText = currentRound;
-            document.getElementById('sys-msg').innerText = "系統提示：前方發現車輛，請用探照燈查驗車牌。";
+            document.getElementById('sys-msg').innerText = "系統提示：前方溪床傳來引擎聲，請用手電筒查驗車牌。";
             document.getElementById('sys-msg').style.color = "var(--text-green)";
 
-            // 隨機決定這台車是否合法 (約 50% 機率)
             isCurrentLegal = Math.random() > 0.5;
             let displayPlate = "";
 
             if (isCurrentLegal) {
-                // 從合法名單中隨機抽一個
                 const randomIndex = Math.floor(Math.random() * legalPlates.length);
                 displayPlate = legalPlates[randomIndex];
             } else {
-                // 產生一個絕對不在合法名單內的假車牌
                 do {
                     displayPlate = generateRandomPlate();
                 } while (legalPlates.includes(displayPlate));
@@ -354,34 +463,31 @@
 
             document.getElementById('truck-plate').innerText = displayPlate;
             
-            // 讓車子有重新出現的感覺 (隨機微調位置)
             const truck = document.getElementById('truck-container');
             const offsetY = (Math.random() * 40 - 20) + "px";
             truck.style.transform = `translateY(${offsetY})`;
         }
 
-        // 玩家點擊判斷按鈕
         function checkAnswer(playerActionPass) {
             const app = document.getElementById('app');
             const sysMsg = document.getElementById('sys-msg');
 
-            // 判斷邏輯：
-            // 如果車合法 (isCurrentLegal) 且玩家按放行 (playerActionPass) -> 正確
-            // 如果車非法 (!isCurrentLegal) 且玩家按扣押 (!playerActionPass) -> 正確
             if (isCurrentLegal === playerActionPass) {
-                // 答對了，進入下一台車
                 currentRound++;
                 nextRound();
             } else {
-                // 答錯了，懲罰特效
-                sysMsg.innerText = ">> 警告：判斷錯誤！請仔細核對左側名單！";
+                sysMsg.innerText = ">> 警告：抓捕錯誤！請看清楚手電筒燈光下的車牌！";
                 sysMsg.style.color = "var(--text-alert)";
                 
-                // 螢幕震動
                 app.classList.add('shake-effect');
-                setTimeout(() => app.classList.remove('shake-effect'), 300);
+                setTimeout(() => {
+                    app.classList.remove('shake-effect');
+                    nextRound(); 
+                }, 400);
             }
         }
+
+        window.addEventListener('click', startMusic, { once: true });
     </script>
 </body>
 </html>
