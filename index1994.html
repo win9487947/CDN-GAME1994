@@ -183,10 +183,14 @@
             border: 4px dashed #ffff33;
             display: inline-block;
             margin-top: 20px;
-            animation: blink 1s step-end infinite;
+            animation: blink-fast 1s step-end infinite;
         }
 
         @keyframes blink {
+            50% { opacity: 0; }
+        }
+        
+        @keyframes blink-fast {
             50% { opacity: 0; }
         }
 
@@ -197,6 +201,10 @@
 </head>
 <body>
 
+    <audio id="bgm" loop hidden>
+        <source src="HTMLMUSIC01.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="game-container">
         <div id="game-ui">
             <header>
@@ -205,6 +213,7 @@
                     <span>登入審核員：<span style="color: #fff;">陳定南</span></span>
                     <span>成功審核：<span id="score" style="color: #ffff33;">0</span> / 3</span>
                 </div>
+                <div style="font-size: 14px; color: #55aa55; margin-top: 10px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
             </header>
 
             <div id="message-box">等待審核中...</div>
@@ -256,10 +265,24 @@
             <div class="password-box">CLEAN_1981</div>
             <br><br>
             <button class="btn btn-pass" onclick="location.reload()" style="font-size: 16px;">重新啟動系統</button>
+            <br><br>
+            <a href="index.html" style="color: #33ff33; font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
         </div>
     </div>
 
     <script>
+        // --- 背景音樂觸發處理 ---
+        const bgm = document.getElementById('bgm');
+        
+        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
+        window.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(error => {
+                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
+                });
+            }
+        }, { once: true });
+
         // 假資料庫
         const names = ["王大明", "李小華", "陳美麗", "林建國", "張志強", "黃淑芬", "吳家豪", "劉雅婷", "蔡宗翰", "楊欣儀"];
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
