@@ -198,15 +198,20 @@
 </head>
 <body>
 
+    <audio id="bgm" loop hidden>
+        <source src="HTMLMESEUM3.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="app">
-        <!-- 系統標頭 (學號與姓名) -->
         <div class="authors-header">
             SYSTEM DEV: D1144241015-王睿朋 | D1144241019-黃永鈞
         </div>
 
-        <!-- 1. 開始畫面 -->
         <div id="start-screen">
             <h1>【黑夜追緝】抓捕盜採砂石車</h1>
+            
+            <div style="font-size: 14px; color: #55aa55; margin-bottom: 20px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
+            
             <div class="story-text">
                 <p>1980年代，台北地區對建築砂石需求量暴增，大批不肖業者與黑道勢力勾結，以合法掩護非法，在宜蘭人的生命之河——「蘭陽溪」進行大規模越界、超挖與盜採砂石。</p>
                 <p>陳定南收到市民檢舉有人盜採砂石，展現極大魄力，親自帶領警察在深夜埋伏，大力掃蕩盜採砂石的集團。</p>
@@ -215,24 +220,19 @@
             <button class="btn btn-start" onclick="startGame()">開始抓捕</button>
         </div>
 
-        <!-- 2. 遊戲畫面 -->
         <div id="game-screen" class="hidden">
-            <!-- 左側合法名單 -->
             <div id="left-panel">
                 <h3>合法申報名單</h3>
                 <ul id="plate-list">
-                    <!-- JS 動態生成 10 個車牌 -->
-                </ul>
+                    </ul>
             </div>
 
-            <!-- 右側探照區 -->
             <div id="right-panel">
                 <div class="status-bar">
                     <span id="sys-msg">系統提示：深夜埋伏中，請隨時注意車輛...</span>
                     <span>攔查進度：<span id="round-display">1</span> / 5</span>
                 </div>
                 
-                <!-- 手電筒遮罩與車輛顯示區 -->
                 <div id="night-scene">
                     <div class="ascii-truck" id="truck-container">
    ___________________
@@ -245,7 +245,6 @@
                     </div>
                 </div>
 
-                <!-- 控制鈕 -->
                 <div id="controls">
                     <button class="btn btn-pass" onclick="checkAnswer(true)">核對無誤 (放行)</button>
                     <button class="btn btn-impound" onclick="checkAnswer(false)">非法盜採 (扣押)</button>
@@ -253,7 +252,6 @@
             </div>
         </div>
 
-        <!-- 3. 勝利畫面 -->
         <div id="victory-screen" class="hidden">
             <h1 style="color: #33ff33; margin-top:0;">破獲盜採集團！</h1>
             <p style="font-size: 22px;">機密檔案解鎖密碼：</p>
@@ -263,10 +261,24 @@
             </div>
             <br>
             <button class="btn btn-pass" onclick="location.reload()" style="margin-top: 10px;">重新啟動系統</button>
+            <br><br>
+            <a href="index.html" style="color: var(--text-green); font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
         </div>
     </div>
 
     <script>
+        // --- 背景音樂觸發處理 ---
+        const bgm = document.getElementById('bgm');
+        
+        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
+        window.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(error => {
+                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
+                });
+            }
+        }, { once: true });
+
         // === 遊戲變數 ===
         const totalRounds = 5;
         let currentRound = 1;
