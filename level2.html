@@ -198,15 +198,26 @@
             100% { transform: translateX(0); }
         }
         .shake-effect { animation: shake 0.3s ease-in-out; }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- 背景音樂播放器 (預設隱藏) -->
+    <audio id="bgm" loop hidden>
+        <source src="HTMLMUSIC01.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="game-container">
         <!-- 頂部資訊 -->
         <header>
             <h1>【機密】宜蘭縣政府 公共工程查核終端機</h1>
             <div id="sys-msg">系統就緒。請核對右側報表金額是否與左側公定價相符。</div>
+            <!-- 提示使用者點擊以觸發音樂 -->
+            <div style="font-size: 14px; color: #55aa55; margin-top: 10px; animation: blink 2s infinite;">(點擊畫面任意處以啟動音訊模組)</div>
         </header>
 
         <!-- 左側面板：公定價與建商對話 -->
@@ -263,10 +274,25 @@
             <br>
             <p style="color: #888;">(1981年上任宜蘭縣長，2005年回鍋參選，陳定南精神永存)</p>
             <button class="btn btn-pass" onclick="location.reload()" style="margin-top: 20px;">重新啟動系統</button>
+            <br><br>
+            <!-- 加入返回首頁的按鈕，方便玩家回到主選單 -->
+            <a href="index.html" style="color: var(--crt-green); font-size: 16px; text-decoration: underline;">返回核心檔案庫首頁</a>
         </div>
     </div>
 
     <script>
+        // --- 背景音樂觸發處理 ---
+        const bgm = document.getElementById('bgm');
+        
+        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
+        window.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(error => {
+                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
+                });
+            }
+        }, { once: true });
+
         // 1. 基本設定：公定材料價格
         const basePrices = [
             { id: 'cement', name: '水泥 (包)', price: 300 },
