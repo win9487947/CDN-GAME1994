@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【青天專案】廉政調查終端機 - 首頁</title>
+    <style>
+        /* 載入復古像素字體 */
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+        :root {
+            --bg-color: #050a05;
+            --term-green: #33ff33;
+            --term-dark-green: #004400;
+            --warning-yellow: #ffcc00;
+            --alert-red: #ff3333;
+            --border-thick: 4px solid var(--term-green);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--term-green);
+            font-family: 'DotGothic16', 'Courier New', Courier, monospace;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden; position: relative;
+        }
+
+        /* CRT 螢幕掃描線特效 */
+        body::after {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 999; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        #terminal-container {
+            width: 1000px; max-width: 95%;
+            background-color: #0a110a;
+            border: var(--border-thick);
+            padding: 30px;
+            box-shadow: inset 0 0 30px rgba(51, 255, 51, 0.1), 0 0 20px rgba(51, 255, 51, 0.3);
+            position: relative; z-index: 10;
+        }
+
+        /* 系統開發者標頭 */
+        .system-header {
+            display: flex; justify-content: space-between;
+            border-bottom: 2px dashed var(--term-green);
+            padding-bottom: 10px; margin-bottom: 20px;
+            font-size: 16px; color: #88ff88;
+        }
+        
+        .title-area { text-align: center; margin-bottom: 30px; }
+        .title-area h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-green); }
+        .title-area p { font-size: 18px; margin: 0; color: #aaa; }
+
+        /* 關卡網格選單 */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        /* 單個關卡卡片 */
+        .mission-card {
+            border: 2px solid var(--term-green);
+            background-color: var(--term-dark-green);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-decoration: none; /* 移除 a 標籤底線 */
+            color: inherit;
+            display: block;
+        }
+
+        .mission-card:hover {
+            background-color: #006600;
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 5px 5px 0px rgba(51, 255, 51, 0.4);
+        }
+
+        .mission-id {
+            position: absolute; top: -12px; left: 15px;
+            background: var(--bg-color); padding: 0 10px;
+            font-weight: bold; font-size: 18px; border: 1px solid var(--term-green);
+        }
+
+        .mission-title { font-size: 24px; margin: 15px 0 10px 0; font-weight: bold; color: #fff; }
+        .mission-desc { font-size: 16px; color: #ccc; line-height: 1.5; margin-bottom: 20px;}
+        
+        .status-badge {
+            display: inline-block; padding: 5px 10px; font-size: 14px;
+            background: #000; border: 1px solid var(--term-green); font-weight: bold;
+        }
+
+        /* 隱藏關卡特殊樣式 */
+        .card-hidden {
+            border-color: var(--warning-yellow);
+            background-color: #221a00;
+            color: var(--warning-yellow);
+        }
+        .card-hidden .mission-id { border-color: var(--warning-yellow); color: var(--warning-yellow); }
+        .card-hidden:hover { background-color: #443300; box-shadow: 5px 5px 0px rgba(255, 204, 0, 0.4); }
+        .card-hidden .status-badge { border-color: var(--warning-yellow); color: var(--warning-yellow); }
+
+        /* 閃爍游標 */
+        .cursor { display: inline-block; width: 10px; height: 20px; background-color: var(--term-green); animation: blink 1s step-end infinite; vertical-align: middle; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* 啟動載入動畫 */
+        #boot-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 50; font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="terminal-container">
+        <div class="system-header">
+            <div>SYSTEM: YILAN_COUNTY_GOV_1981</div>
+            <div>DEV: D1144241015-王睿朋 | D1144241019-黃永鈞</div>
+        </div>
+
+        <div class="title-area">
+            <h1>【青天專案】核心檔案庫</h1>
+            <p>登入身分：陳定南 (縣長) | 權限：最高級別 <span class="cursor"></span></p>
+        </div>
+
+        <div class="mission-grid">
+            <a href="index1994.html" class="mission-card">
+                <div class="mission-id">FILE #01</div>
+                <div class="mission-title">幽靈連署審查系統</div>
+                <div class="mission-desc">任務：核對身分證與送審單據，揪出造假的連署書。秉持「誠實與精確」，不容許一絲造假。</div>
+                <div class="status-badge">狀態：等待查核</div>
+            </a>
+
+            <a href="level2.html" class="mission-card">
+                <div class="mission-id">FILE #02</div>
+                <div class="mission-title">公共工程經費查核</div>
+                <div class="mission-desc">任務：比對縣府核定物價與建商報表，揪出浮報工程款的不肖廠商，拒絕任何關說。</div>
+                <div class="status-badge">狀態：等待查核</div>
+            </a>
+
+            <a href="L4.html" class="mission-card">
+                <div class="mission-id">FILE #03</div>
+                <div class="mission-title">黑夜追緝盜採砂石</div>
+                <div class="mission-desc">任務：深夜埋伏蘭陽溪畔，利用手電筒查驗砂石車牌。鐵腕掃蕩越界超挖的黑道集團。</div>
+                <div class="status-badge">狀態：等待查核</div>
+            </a>
+
+            <a href="game4.html" class="mission-card card-hidden">
+                <div class="mission-id">FILE #04 (機密)</div>
+                <div class="mission-title" style="color: var(--warning-yellow);">冬山河監工大考驗</div>
+                <div class="mission-desc" style="color: #ddb;">任務：親自帶著鐵鎚與皮尺前往工地。一公分的誤差、一度的傾斜，通通打掉重練！</div>
+                <div class="status-badge">狀態：最高機密檔案</div>
+            </a>
+        </div>
+    </div>
+
+    <div id="boot-screen">
+        <div id="boot-text">載入青天專案核心系統...</div>
+    </div>
+
+    <script>
+        // 營造 80 年代電腦開機的感覺
+        window.onload = () => {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootText = document.getElementById('boot-text');
+            
+            setTimeout(() => { bootText.innerText = "驗證開發者權限... (王睿朋, 黃永鈞)"; }, 600);
+            setTimeout(() => { bootText.innerText = "權限確認完畢。準備進入首頁..."; }, 1200);
+            setTimeout(() => { 
+                bootScreen.style.display = 'none'; 
+            }, 1800);
+        };
+    </script>
+</body>
+</html>
