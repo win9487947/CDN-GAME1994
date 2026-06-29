@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>廉政風暴：1981 公共工程查核系統</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+        :root {
+            --bg-color: #1a1a1c;
+            --paper-bg: #e3dabc;
+            --text-dark: #2b2b2b;
+            --stamp-red: #c92a2a;
+            --crt-green: #33ff33;
+            --border-heavy: 4px solid #2b2b2b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            font-family: 'DotGothic16', "PMingLiU", "新細明體", serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 復古 CRT 與電視雜訊效果 */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 999;
+            background-size: 100% 3px;
+            pointer-events: none;
+        }
+
+        #game-container {
+            background-color: #8b9287; /* 復古鐵灰色辦公桌 */
+            border: 8px solid #4a4a4a;
+            padding: 20px;
+            width: 1000px;
+            max-width: 95%;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            position: relative;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background-color: #2b2b2b;
+            color: var(--crt-green);
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #555;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        header h1 { margin: 0; font-size: 20px; letter-spacing: 4px; }
+
+        /* 左側區塊 */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 建商對話框 */
+        .dialogue-box {
+            background-color: #fff;
+            border: var(--border-heavy);
+            padding: 10px;
+            position: relative;
+        }
+        .dialogue-box::before {
+            content: '【嫌疑建商】';
+            background: var(--text-dark);
+            color: #fff;
+            padding: 2px 5px;
+            font-size: 14px;
+            position: absolute;
+            top: -12px;
+            left: -4px;
+        }
+        .dialogue-box p { margin: 10px 0 0 0; font-weight: bold; }
+        .builder-name { color: #880000; text-decoration: underline; }
+
+        /* 公定物價表 */
+        .price-list {
+            background-color: var(--paper-bg);
+            border: var(--border-heavy);
+            padding: 10px;
+        }
+        .price-list h3 { margin: 0 0 10px 0; text-align: center; border-bottom: 2px solid #000; }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #666;
+            padding: 4px 0;
+        }
+
+        /* 計算機 */
+        .calculator {
+            background-color: #dedede;
+            border: var(--border-heavy);
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
+        }
+        .calc-screen {
+            background-color: #9ba686; /* 早期液晶螢幕綠 */
+            color: #000;
+            text-align: right;
+            padding: 10px;
+            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            border: inset 3px #666;
+            margin-bottom: 10px;
+            min-height: 28px;
+            overflow: hidden;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        .calc-btn {
+            background-color: #eee;
+            border: 2px solid #888;
+            border-bottom: 4px solid #555;
+            padding: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .calc-btn:active {
+            border-bottom: 2px solid #555;
+            transform: translateY(2px);
+        }
+        .calc-btn.op { background-color: #ffcc00; }
+        .calc-btn.clear { background-color: #ff5555; color: white; }
+
+        /* 右側報表區塊 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .report-card {
+            background-color: var(--paper-bg);
+            border: var(--border-heavy);
+            padding: 20px;
+            flex-grow: 1;
+            position: relative;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.4);
+        }
+        .report-header {
+            text-align: center;
+            border-bottom: 4px double #000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .report-header h2 { margin: 0; font-size: 28px; letter-spacing: 5px;}
+        .report-header p { margin: 5px 0 0 0; }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 18px;
+        }
+        .report-table th, .report-table td {
+            border: 2px solid #000;
+            padding: 8px;
+            text-align: right;
+        }
+        .report-table th { background-color: #ccc; text-align: center; }
+        .report-table td.item-name { text-align: left; font-weight: bold; }
+        
+        .total-row { font-weight: bold; font-size: 22px; background-color: #ddd;}
+
+        /* 控制按鈕 */
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+            padding: 15px;
+            border: var(--border-heavy);
+        }
+        .btn {
+            font-family: inherit;
+            font-size: 24px;
+            padding: 10px 30px;
+            border: 4px solid;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-reject {
+            background-color: #fff;
+            color: var(--stamp-red);
+            border-color: var(--stamp-red);
+            box-shadow: 4px 4px 0px var(--stamp-red);
+        }
+        .btn-pass {
+            background-color: #fff;
+            color: #0066cc;
+            border-color: #0066cc;
+            box-shadow: 4px 4px 0px #0066cc;
+        }
+
+        /* 系統訊息與印章特效 */
+        #sys-msg {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: yellow;
+            height: 25px;
+        }
+
+        .stamp-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg) scale(5);
+            font-size: 80px;
+            font-weight: bold;
+            border: 10px solid;
+            padding: 10px 30px;
+            border-radius: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+        }
+        .stamp-show {
+            transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+            opacity: 0.8;
+        }
+        .stamp-reject { color: var(--stamp-red); border-color: var(--stamp-red); }
+        .stamp-pass { color: #0066cc; border-color: #0066cc; }
+
+        .hidden { display: none !important; }
+
+        /* 勝利畫面 */
+        #victory-screen {
+            display: none;
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+            padding: 40px;
+            grid-column: 1 / -1;
+            border: 4px dashed yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <header>
+            <h1>【宜蘭縣政府】公共工程經費查核終端 - 操作員：陳定南</h1>
+            <div id="sys-msg">系統就緒。請查驗報表金額。 (當前案件: <span id="level-display">1</span> / 4)</div>
+        </header>
+
+        <!-- 左側面板 -->
+        <div class="left-panel">
+            <div class="dialogue-box">
+                <span class="builder-name" id="builder-name">讀取中...</span>
+                <p id="builder-quote">讀取中...</p>
+            </div>
+
+            <div class="price-list">
+                <h3>📜 縣府核定物價表</h3>
+                <div id="price-list-content">
+                    <!-- JS 產生價格表 -->
+                </div>
+            </div>
+
+            <div class="calculator">
+                <div class="calc-screen" id="calc-screen">0</div>
+                <div class="calc-grid">
+                    <button class="calc-btn" onclick="calcInput('7')">7</button>
+                    <button class="calc-btn" onclick="calcInput('8')">8</button>
+                    <button class="calc-btn" onclick="calcInput('9')">9</button>
+                    <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+                    
+                    <button class="calc-btn" onclick="calcInput('4')">4</button>
+                    <button class="calc-btnNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
