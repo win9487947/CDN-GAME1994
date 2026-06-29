@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隱藏關卡 - 冬山河監工大考驗</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+        :root {
+            --bg-color: #051014;
+            --term-green: #33ff33;
+            --blueprint-blue: #003366;
+            --warning-yellow: #ffcc00;
+            --alert-red: #ff3333;
+            --border-thick: 4px solid #fff;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'DotGothic16', 'Courier New', Courier, monospace;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden; position: relative;
+        }
+
+        /* CRT 特效 */
+        body::after {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        #app-container {
+            width: 850px; max-width: 95%;
+            background-color: #111;
+            border: var(--border-thick);
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+            position: relative; z-index: 10;
+        }
+
+        /* 施工條紋裝飾 */
+        .construction-tape {
+            height: 15px;
+            background: repeating-linear-gradient(
+                45deg, var(--warning-yellow), var(--warning-yellow) 10px,
+                #000 10px, #000 20px
+            );
+        }
+
+        /* 開始畫面 */
+        #start-screen { padding: 40px; text-align: center; }
+        #start-screen h1 { font-size: 38px; color: var(--warning-yellow); margin-bottom: 20px; text-shadow: 2px 2px 0 #000;}
+        .story-text { 
+            font-size: 20px; line-height: 1.6; text-align: left; 
+            background: rgba(255,255,255,0.1); padding: 20px; 
+            border: 2px dashed #888; margin-bottom: 30px;
+        }
+        
+        /* 遊戲畫面 */
+        #game-screen { padding: 20px; position: relative; overflow: hidden; }
+        
+        header { text-align: center; margin-bottom: 20px; }
+        header h2 { margin: 0; color: var(--warning-yellow); font-size: 28px; }
+        .progress { font-size: 18px; color: #888; margin-top: 5px; }
+
+        /* 檢查區域 (設計圖 vs 實測) */
+        .inspection-area {
+            display: flex; gap: 20px; justify-content: space-between;
+            margin-bottom: 20px; position: relative;
+        }
+
+        .blueprint-card, .actual-card {
+            flex: 1; padding: 20px; border: var(--border-thick);
+            text-align: center; position: relative;
+        }
+
+        .blueprint-card { background-color: var(--blueprint-blue); }
+        .actual-card { background-color: #2b2b2b; }
+
+        .card-title { 
+            font-size: 20px; font-weight: bold; padding: 5px 10px;
+            background: #000; display: inline-block; margin-bottom: 15px;
+            border: 2px solid #fff;
+        }
+
+        .item-name { font-size: 28px; color: var(--warning-yellow); margin-bottom: 10px; }
+        .item-value { font-size: 40px; font-weight: bold; letter-spacing: 2px; }
+        
+        #actual-value { color: var(--term-green); } /* 預設綠色，造假會變色嗎？不用，靠玩家判斷 */
+
+        /* 系統提示 */
+        #sys-msg {
+            text-align: center; font-size: 22px; font-weight: bold; 
+            height: 30px; margin-bottom: 20px; color: #fff;
+        }
+
+        /* 按鈕區 */
+        .controls { display: flex; justify-content: center; gap: 30px; }
+        .btn {
+            font-family: inherit; font-size: 22px; padding: 15px 30px;
+            border: 4px solid; cursor: pointer; font-weight: bold;
+            background: #000; transition: all 0.1s;
+        }
+        .btn:active { transform: translateY(4px); }
+        .btn-hammer { color: var(--alert-red); border-color: var(--alert-red); box-shadow: 4px 4px 0 var(--alert-red);}
+        .btn-hammer:hover { background: #330000; }
+        .btn-pass { color: var(--term-green); border-color: var(--term-green); box-shadow: 4px 4px 0 var(--term-green);}
+        .btn-pass:hover { background: #003300; }
+
+        /* 巨大鐵鎚動畫特效 */
+        #hammer-anim {
+            position: absolute; top: 10%; left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            font-size: 150px; opacity: 0; pointer-events: none;
+            z-index: 100;
+        }
+        .smash { animation: smashAnim 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes smashAnim {
+            0% { transform: translate(-10%, -50%) rotate(45deg); opacity: 1; }
+            50% { transform: translate(-50%, 20%) rotate(-45deg); opacity: 1; }
+            80% { transform: translate(-50%, 20%) rotate(-45deg); opacity: 1; }
+            100% { transform: translate(-50%, 20%) rotate(-45deg); opacity: 0; }
+        }
+
+        /* 視覺狀聲詞特效 */
+        #sfx-text {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px; font-weight: bold; color: var(--warning-yellow);
+            text-shadow: 5px 5px 0 var(--alert-red), -2px -2px 0 #fff;
+            opacity: 0; pointer-events: none; z-index: 101;
+            font-style: italic;
+        }
+        .sfx-show { animation: sfxAnim 0.6s ease-out forwards; }
+        @keyframes sfxAnim {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* 震動特效 */
+        @keyframes shake {
+            0%, 100% { transform: translate(0,0); }
+            20% { transform: translate(-15px, 15px); }
+            40% { transform: translate(15px, -15px); }
+            60% { transform: translate(-15px, -15px); }
+            80% { transform: translate(15px, 15px); }
+        }
+        .shake-effect { animation: shake 0.3s ease-in-out; }
+
+        /* 勝利畫面 */
+        #victory-screen { padding: 50px; text-align: center; background: #000; }
+        .hidden { display: none !important; }
+        .btn-start {
+            background-color: var(--warning-yellow); color: #000;
+            font-family: inherit; font-size: 26px; padding: 15px 40px;
+            border: 4px solid #fff; cursor: pointer; font-weight: bold;
+            animation: blink 1s infinite step-end;
+        }
+        @keyframes blink { 50% { opacity: 0.8; border-color: #555;} }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div class="construction-tape"></div>
+
+        <div id="start-screen">
+            <h1>【隱藏關卡】冬山河監工大考驗</h1>
+            <div class="story-text">
+                陳定南在建設冬山河親水公園和羅東運動公園時，出了名的「龜毛」。<br><br>
+                他會親自拿著皮尺量樹木的間距、拿鐵鎚敲打地磚測試密合度，只要角度不對、有一點點偷工減料，當場要求打掉重練。<br><br>
+                <span style="color: var(--warning-yellow); font-weight: bold;">玩法：比對右側「現場實測」是否與左側「標準規格」【完全一致】。符合請按「驗收通過」，差一丁點就按「鐵鎚伺候」！</span>
+            </div>
+            <button class="btn-start" onclick="startGame()">開始檢查</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <header>
+                <h2>嚴格把關：工程驗收作業</h2>
+                <div class="progress">當前進度：<span id="round-display">1</span> / 5</div>
+            </header>
+
+            <div id="hammer-anim">🔨</div>
+            <div id="sfx-text">💥 KANG!</div>
+
+            <div class="inspection-area">
+                <div class="blueprint-card">
+                    <div class="card-title">📝 標準設計圖</div>
+                    <div class="item-name" id="std-name">樹木間距</div>
+                    <div class="item-value" id="std-value">500 cm</div>
+                </div>
+
+                <div class="actual-card">
+                    <div class="card-title">🚧 現場實測</div>
+                    <div class="item-name" id="act-name">樹木間距</div>
+                    <div class="item-value" id="act-value">495 cm</div>
+                </div>
+            </div>
+
+            <div id="sys-msg">等待指示...</div>
+
+            <div class="controls">
+                <button class="btn btn-hammer" onclick="checkAnswer(false)">鐵鎚伺候 (打掉重練)</button>
+                <button class="btn btn-pass" onclick="checkAnswer(true)">皮尺檢測 (驗收通過)</button>
+            </div>
+        </div>
+
+        <div id="victory-screen" class="hidden">
+            <h1 style="color: var(--term-green); font-size: 40px; margin-top:0;">完美竣工！</h1>
+            <p style="font-size: 22px; color: #ddd; line-height: 1.6;">
+                因為您的嚴格把關，「冬山河親水公園」成為台灣公共工程的歷史標竿。<br>
+                沒有一絲妥協，成就了百年的品質。
+            </p>
+            <div style="font-size: 50px; color: var(--warning-yellow); margin: 30px 0; font-weight: bold; border: 4px dashed; padding: 20px;">
+                品質保證，青天精神
+            </div>
+            <button class="btn btn-pass" onclick="location.reload()">完成所有任務 (重啟系統)</button>
+        </div>
+
+        <div class="construction-tape"></div>
+    </div>
+
+    <script>
+        // 工程檢驗項目資料庫
+        const inspectionItems = [
+            { name: '黑板樹植栽間距', std: 500, unit: 'cm' },
+            { name: '紅磚步道傾斜度', std: 0, unit: '度' },
+            { name: '護岸卵石直徑', std: 15, unit: 'cm' },
+            { name: '水泥磅數強度', std: 3000, unit: 'psi' },
+            { name: '廣場鋪面平整誤差', std: 0, unit: 'mm' },
+            { name: '涼亭木柱垂直度', std: 90, unit: '度' }
+        ];
+
+        const totalRounds = 5;
+        let currentRound = 1;
+        let isPerfectMatch = false; // 這回合是否完全符合？
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            nextRound();
+        }
+
+        function nextRound() {
+            if (currentRound > totalRounds) {
+                setTimeout(() => {
+                    document.getElementById('game-screen').classList.add('hidden');
+                    document.getElementById('victory-screen').classList.remove('hidden');
+                }, 500);
+                return;
+            }
+
+            document.getElementById('round-display').innerText = currentRound;
+            document.getElementById('sys-msg').innerText = "系統提示：請比對數值，稍有誤差立刻打掉！";
+            document.getElementById('sys-msg').style.color = "#fff";
+
+            // 隨機抽取一個工程項目
+            const item = inspectionItems[Math.floor(Math.random() * inspectionItems.length)];
+            
+            // 隨機決定這次工程是否有偷工減料 (50% 機率完美)
+            isPerfectMatch = Math.random() > 0.5;
+
+            document.getElementById('std-name').innerText = item.name;
+            document.getElementById('act-name').innerText = item.name;
+            document.getElementById('std-value').innerText = `${item.std} ${item.unit}`;
+
+            let actualVal = item.std;
+            if (!isPerfectMatch) {
+                // 製造微小誤差 (例如正負 1~5 的誤差，讓玩家必須看清楚)
+                const error = Math.floor(Math.random() * 5) + 1;
+                // 有些標準是 0 (如誤差或傾斜度)，不能扣到變負數
+                if (item.std === 0) {
+                    actualVal = item.std + error;
+                } else {
+                    actualVal = (Math.random() > 0.5) ? item.std + error : item.std - error;
+                }
+            }
+            document.getElementById('act-value').innerText = `${actualVal} ${item.unit}`;
+        }
+
+        function checkAnswer(playerPass) {
+            const sysMsg = document.getElementById('sys-msg');
+            const app = document.getElementById('app-container');
+            const hammerAnim = document.getElementById('hammer-anim');
+            const sfxText = document.getElementById('sfx-text');
+
+            // 判斷邏輯：
+            // 如果完美相符，且玩家按了通過 -> 正確
+            // 如果有誤差，且玩家按了鐵鎚(拒絕) -> 正確
+            const isCorrect = (isPerfectMatch && playerPass) || (!isPerfectMatch && !playerPass);
+
+            // 觸發鐵鎚動畫 (只要按鐵鎚，或答錯時強制被鐵鎚砸)
+            if (!playerPass || !isCorrect) {
+                // 重置動畫
+                hammerAnim.classList.remove('smash');
+                sfxText.classList.remove('sfx-show');
+                void hammerAnim.offsetWidth; // 觸發重繪 (Reflow)
+                
+                // 播放動畫
+                hammerAnim.classList.add('smash');
+                
+                // 配合鐵鎚敲下去的時間點 (約 250ms) 觸發震動與狀聲詞
+                setTimeout(() => {
+                    app.classList.add('shake-effect');
+                    sfxText.classList.add('sfx-show');
+                    
+                    if (isCorrect) {
+                        sfxText.innerText = "💥 拆除重練！";
+                        sfxText.style.color = "var(--warning-yellow)";
+                    } else {
+                        sfxText.innerText = "❌ 庸官誤國！";
+                        sfxText.style.color = "var(--alert-red)";
+                    }
+
+                    setTimeout(() => app.classList.remove('shake-effect'), 300);
+                }, 250);
+            }
+
+            // 鎖定按鈕防止連點 (簡單處理，設定延遲進入下一關)
+            setTimeout(() => {
+                if (isCorrect) {
+                    currentRound++;
+                    nextRound();
+                } else {
+                    sysMsg.innerText = ">> 警告：判斷錯誤！差一點點也不行 / 不要亂砸完美工程！";
+                    sysMsg.style.color = "var(--alert-red)";
+                }
+            }, 1000); // 等待動畫播完
+        }
+    </script>
+</body>
+</html>
