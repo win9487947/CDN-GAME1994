@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>廉政風暴：1981 公共工程查核系統</title>
+    <title>D1144241015/19王睿朋/黃永鈞</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 
         :root {
-            --bg-color: #1a1a1c;
-            --paper-bg: #e3dabc;
-            --text-dark: #2b2b2b;
-            --stamp-red: #c92a2a;
+            --bg-color: #0d0d0d;
+            --paper-bg: #d9d2c5;
+            --text-dark: #1a1a1a;
+            --stamp-red: #b30000;
+            --stamp-blue: #004d99;
             --crt-green: #33ff33;
-            --border-heavy: 4px solid #2b2b2b;
+            --border-heavy: 4px solid #1a1a1a;
         }
 
         body {
@@ -30,34 +31,35 @@
             position: relative;
         }
 
-        /* 復古 CRT 與電視雜訊效果 */
+        /* CRT 螢幕雜訊效果 */
         body::after {
             content: " ";
             display: block;
             position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 999;
-            background-size: 100% 3px;
+            background-size: 100% 3px, 4px 100%;
             pointer-events: none;
         }
 
         #game-container {
-            background-color: #8b9287; /* 復古鐵灰色辦公桌 */
-            border: 8px solid #4a4a4a;
+            background-color: #7b8577; /* 復古軍公教鐵灰綠辦公桌 */
+            border: 8px solid #333;
             padding: 20px;
-            width: 1000px;
+            width: 900px;
             max-width: 95%;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--crt-green);
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 20px;
             position: relative;
+            z-index: 10;
         }
 
         header {
             grid-column: 1 / -1;
-            background-color: #2b2b2b;
+            background-color: #1a1a1a;
             color: var(--crt-green);
             padding: 10px;
             text-align: center;
@@ -65,235 +67,332 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        header h1 { margin: 0; font-size: 20px; letter-spacing: 4px; }
+        header h1 { margin: 0; font-size: 22px; letter-spacing: 2px; }
+        #sys-msg { margin-top: 5px; font-size: 18px; color: #ffffaa; font-weight: bold; min-height: 24px;}
 
-        /* 左側區塊 */
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        /* 左側區塊：建商對話與物價表 */
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
 
-        /* 建商對話框 */
         .dialogue-box {
-            background-color: #fff;
+            background-color: #eee;
             border: var(--border-heavy);
-            padding: 10px;
+            padding: 20px 15px 15px 15px;
             position: relative;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
         .dialogue-box::before {
-            content: '【嫌疑建商】';
+            content: '【面談紀錄】';
             background: var(--text-dark);
             color: #fff;
-            padding: 2px 5px;
-            font-size: 14px;
+            padding: 4px 8px;
+            font-size: 16px;
             position: absolute;
-            top: -12px;
+            top: -16px;
             left: -4px;
         }
-        .dialogue-box p { margin: 10px 0 0 0; font-weight: bold; }
-        .builder-name { color: #880000; text-decoration: underline; }
+        .builder-name { color: #880000; font-size: 22px; font-weight: bold; text-decoration: underline; }
+        .dialogue-box p { margin: 10px 0 0 0; font-size: 18px; font-weight: bold; line-height: 1.4; color: #333;}
 
-        /* 公定物價表 */
         .price-list {
             background-color: var(--paper-bg);
             border: var(--border-heavy);
-            padding: 10px;
+            padding: 15px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
-        .price-list h3 { margin: 0 0 10px 0; text-align: center; border-bottom: 2px solid #000; }
+        .price-list h3 { margin: 0 0 15px 0; text-align: center; border-bottom: 3px double #000; padding-bottom: 5px;}
         .price-row {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px dashed #666;
-            padding: 4px 0;
-        }
-
-        /* 計算機 */
-        .calculator {
-            background-color: #dedede;
-            border: var(--border-heavy);
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
-        }
-        .calc-screen {
-            background-color: #9ba686; /* 早期液晶螢幕綠 */
-            color: #000;
-            text-align: right;
-            padding: 10px;
-            font-size: 24px;
-            font-family: 'Courier New', monospace;
-            border: inset 3px #666;
-            margin-bottom: 10px;
-            min-height: 28px;
-            overflow: hidden;
-        }
-        .calc-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-        }
-        .calc-btn {
-            background-color: #eee;
-            border: 2px solid #888;
-            border-bottom: 4px solid #555;
-            padding: 10px 0;
+            border-bottom: 1px dashed #555;
+            padding: 8px 0;
             font-size: 18px;
             font-weight: bold;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .calc-btn:active {
-            border-bottom: 2px solid #555;
-            transform: translateY(2px);
-        }
-        .calc-btn.op { background-color: #ffcc00; }
-        .calc-btn.clear { background-color: #ff5555; color: white; }
-
-        /* 右側報表區塊 */
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
+        /* 右側區塊：報表與操作鈕 */
+        .right-panel { display: flex; flex-direction: column; gap: 15px; position: relative;}
+        
         .report-card {
             background-color: var(--paper-bg);
             border: var(--border-heavy);
             padding: 20px;
             flex-grow: 1;
-            position: relative;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.4);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.6);
         }
         .report-header {
             text-align: center;
-            border-bottom: 4px double #000;
-            margin-bottom: 20px;
+            border-bottom: 4px solid #000;
+            margin-bottom: 15px;
             padding-bottom: 10px;
         }
-        .report-header h2 { margin: 0; font-size: 28px; letter-spacing: 5px;}
-        .report-header p { margin: 5px 0 0 0; }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 18px;
-        }
+        .report-header h2 { margin: 0; font-size: 26px; letter-spacing: 4px; color: #111;}
+        
+        .report-table { width: 100%; border-collapse: collapse; font-size: 20px; }
         .report-table th, .report-table td {
-            border: 2px solid #000;
-            padding: 8px;
+            border: 2px solid #222;
+            padding: 10px;
             text-align: right;
         }
-        .report-table th { background-color: #ccc; text-align: center; }
-        .report-table td.item-name { text-align: left; font-weight: bold; }
+        .report-table th { background-color: #bbb; text-align: center; }
+        .report-table td.item-name { text-align: center; font-weight: bold; }
+        .report-table tr:hover { background-color: #c9c3b3; }
         
-        .total-row { font-weight: bold; font-size: 22px; background-color: #ddd;}
-
-        /* 控制按鈕 */
         .controls {
             display: flex;
-            justify-content: space-around;
-            background-color: #333;
+            justify-content: center;
+            gap: 30px;
+            background-color: #222;
             padding: 15px;
             border: var(--border-heavy);
         }
         .btn {
-            font-family: inherit;
-            font-size: 24px;
-            padding: 10px 30px;
-            border: 4px solid;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.1s;
+            font-family: inherit; font-size: 24px; padding: 12px 40px;
+            border: 4px solid; cursor: pointer; font-weight: bold;
+            transition: all 0.1s; background-color: #e6e6e6;
+            letter-spacing: 2px;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-reject {
-            background-color: #fff;
-            color: var(--stamp-red);
-            border-color: var(--stamp-red);
-            box-shadow: 4px 4px 0px var(--stamp-red);
-        }
-        .btn-pass {
-            background-color: #fff;
-            color: #0066cc;
-            border-color: #0066cc;
-            box-shadow: 4px 4px 0px #0066cc;
-        }
+        .btn:active { transform: scale(0.95) translate(2px, 2px); }
+        .btn-reject { color: var(--stamp-red); border-color: var(--stamp-red); box-shadow: 4px 4px 0px var(--stamp-red); }
+        .btn-pass { color: var(--stamp-blue); border-color: var(--stamp-blue); box-shadow: 4px 4px 0px var(--stamp-blue); }
 
-        /* 系統訊息與印章特效 */
-        #sys-msg {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: yellow;
-            height: 25px;
-        }
-
+        /* 印章特效 */
         .stamp-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg) scale(5);
-            font-size: 80px;
-            font-weight: bold;
-            border: 10px solid;
-            padding: 10px 30px;
-            border-radius: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute; top: 40%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg) scale(3);
+            font-size: 60px; font-weight: bold; border: 8px solid;
+            padding: 10px 40px; border-radius: 10px;
+            opacity: 0; pointer-events: none;
+            transition: all 0.2s ease-out;
             z-index: 100;
+            font-family: 'PMingLiU', serif;
         }
-        .stamp-show {
-            transform: translate(-50%, -50%) rotate(-15deg) scale(1);
-            opacity: 0.8;
-        }
+        .stamp-show { transform: translate(-50%, -50%) rotate(-15deg) scale(1); opacity: 0.9; }
         .stamp-reject { color: var(--stamp-red); border-color: var(--stamp-red); }
-        .stamp-pass { color: #0066cc; border-color: #0066cc; }
-
-        .hidden { display: none !important; }
+        .stamp-pass { color: var(--stamp-blue); border-color: var(--stamp-blue); }
 
         /* 勝利畫面 */
         #victory-screen {
-            display: none;
-            text-align: center;
-            background-color: #000;
-            color: #fff;
-            padding: 40px;
-            grid-column: 1 / -1;
-            border: 4px dashed yellow;
+            display: none; text-align: center; background-color: #0a0a0a;
+            color: #fff; padding: 50px; grid-column: 1 / -1; 
+            border: 4px solid #ffff33;
+            box-shadow: inset 0 0 20px #ffff33;
         }
+        .secret-code {
+            font-size: 60px;
+            color: #ffff33;
+            background: #222;
+            padding: 20px;
+            border: 4px dashed #ffff33;
+            display: inline-block;
+            margin: 20px 0;
+            letter-spacing: 10px;
+            text-shadow: 0 0 10px #ffff33;
+        }
+        .hidden { display: none !important; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        .shake-effect { animation: shake 0.3s ease-in-out; }
     </style>
 </head>
 <body>
 
     <div id="game-container">
+        <!-- 頂部資訊 -->
         <header>
-            <h1>【宜蘭縣政府】公共工程經費查核終端 - 操作員：陳定南</h1>
-            <div id="sys-msg">系統就緒。請查驗報表金額。 (當前案件: <span id="level-display">1</span> / 4)</div>
+            <h1>【機密】宜蘭縣政府 公共工程查核終端機</h1>
+            <div id="sys-msg">系統就緒。請核對右側報表金額是否與左側公定價相符。</div>
         </header>
 
-        <!-- 左側面板 -->
+        <!-- 左側面板：公定價與建商對話 -->
         <div class="left-panel">
             <div class="dialogue-box">
-                <span class="builder-name" id="builder-name">讀取中...</span>
-                <p id="builder-quote">讀取中...</p>
+                <div class="builder-name" id="builder-name">建商A</div>
+                <p id="builder-quote">「陳縣長，這點小意思，大家交個朋友嘛，報表隨便看看就好啦！」</p>
             </div>
 
             <div class="price-list">
-                <h3>📜 縣府核定物價表</h3>
+                <h3>📜 縣府核定單價表</h3>
                 <div id="price-list-content">
-                    <!-- JS 產生價格表 -->
+                    <!-- JS 動態生成 -->
                 </div>
             </div>
+        </div>
 
-            <div class="calculator">
-                <div class="calc-screen" id="calc-screen">0</div>
-                <div class="calc-grid">
-                    <button class="calc-btn" onclick="calcInput('7')">7</button>
-                    <button class="calc-btn" onclick="calcInput('8')">8</button>
-                    <button class="calc-btn" onclick="calcInput('9')">9</button>
-                    <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+        <!-- 右側面板：報表與操作鈕 -->
+        <div class="right-panel">
+            <!-- 印章動畫用 -->
+            <div id="stamp" class="stamp-overlay">退件</div>
+
+            <div class="report-card">
+                <div class="report-header">
+                    <h2>工程材料經費報表</h2>
+                    <p style="text-align:right; margin:5px 0 0 0; font-weight:bold;">案件編號：<span id="case-number">1981-A</span></p>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>數量</th>
+                            <th>小計(元)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-body">
+                        <!-- JS 動態生成 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-reject" onclick="checkAnswer(false)">駁回 (✖)</button>
+                <button class="btn btn-pass" onclick="checkAnswer(true)">核准 (✔)</button>
+            </div>
+        </div>
+
+        <!-- 勝利解鎖畫面 -->
+        <div id="victory-screen">
+            <h1 style="color: #55ff55; font-size: 40px; margin-top:0;">審查完畢，弊案全數破獲！</h1>
+            <p style="font-size: 24px; color: #ddd;">青天大老爺，您成功擋下了所有浮報與貪汙。</p>
+            <p style="font-size: 20px;">機密檔案已解鎖，通關密碼為：</p>
+            <div class="secret-code">2005</div>
+            <br>
+            <p style="color: #888;">(1981年上任宜蘭縣長，2005年回鍋參選，陳定南精神永存)</p>
+            <button class="btn btn-pass" onclick="location.reload()" style="margin-top: 20px;">重新啟動系統</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. 基本設定：公定材料價格
+        const basePrices = [
+            { id: 'cement', name: '水泥 (包)', price: 300 },
+            { id: 'rebar', name: '鋼筋 (噸)', price: 500 },
+            { id: 'paint', name: '油漆 (桶)', price: 200 },
+            { id: 'labor', name: '人力費 (天)', price: 180 }
+        ];
+
+        // 2. 關卡設定：建商A~D
+        const builders = [
+            { name: "建商 A (土方包商)", quote: "「陳縣長，這點小意思，大家交個朋友嘛，報表算一下很快的啦！」" },
+            { name: "建商 B (營造少東)", quote: "「哎呀，最近物價波動大，我們這報價絕對是合情合理，您通融通融。」" },
+            { name: "建商 C (地方角頭)", quote: "「青天大人，我們工程品質掛保證的！這帳單絕對經得起您親自拿算盤考驗！」" },
+            { name: "建商 D (政商白手套)", quote: "「上面都有交代了，您就行個方便蓋個章，以後大家路才走得寬啊。」" }
+        ];
+
+        let currentLevel = 0;
+        let isCurrentFraud = false; // 這回合建商是否有浮報？
+
+        // 遊戲初始化
+        function initGame() {
+            // 渲染左側公定物價表
+            const priceListDiv = document.getElementById('price-list-content');
+            basePrices.forEach(item => {
+                priceListDiv.innerHTML += `
+                    <div class="price-row">
+                        <span>${item.name}</span>
+                        <span>$${item.price}</span>
+                    </div>
+                `;
+            });
+            loadLevel(currentLevel);
+        }
+
+        // 載入關卡
+        function loadLevel(levelIndex) {
+            const builder = builders[levelIndex];
+            document.getElementById('builder-name').innerText = builder.name;
+            document.getElementById('builder-quote').innerText = builder.quote;
+            document.getElementById('case-number').innerText = `1981-0${levelIndex + 1}`;
+            document.getElementById('sys-msg').innerText = `系統提示：等待審核中... (進度: ${levelIndex + 1} / 4)`;
+            document.getElementById('sys-msg').style.color = "#ffffaa";
+
+            generateReport();
+        }
+
+        // 產生報表資料
+        function generateReport() {
+            const tbody = document.getElementById('report-body');
+            tbody.innerHTML = '';
+            
+            // 隨機決定這關是否要造假 (為了遊戲性，確保有真有假)
+            // 第一關強制造假，第二關強制為真，後面隨機，讓玩家適應規則
+            if (currentLevel === 0) isCurrentFraud = true;
+            else if (currentLevel === 1) isCurrentFraud = false;
+            else isCurrentFraud = Math.random() > 0.5;
+
+            // 隨機挑選一個項目來造假
+            const fraudTargetIndex = Math.floor(Math.random() * basePrices.length);
+
+            basePrices.forEach((item, index) => {
+                // 隨機產生數量 2 ~ 9
+                const qty = Math.floor(Math.random() * 8) + 2; 
+                let subtotal = item.price * qty;
+
+                // 如果這回合判定為造假，且輪到這個項目被改
+                if (isCurrentFraud && index === fraudTargetIndex) {
+                    // 浮報價格 (增加 100 ~ 900 元)
+                    const extra = (Math.floor(Math.random() * 9) + 1) * 100;
+                    subtotal += extra;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="item-name">${item.name}</td>
+                        <td>${qty}</td>
+                        <td>$${subtotal}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 檢查玩家選擇 (isPass = true 代表玩家按了核准)
+        function checkAnswer(isPlayerPass) {
+            const msgBox = document.getElementById('sys-msg');
+            const stamp = document.getElementById('stamp');
+            const container = document.getElementById('game-container');
+            
+            // 動畫與音效視覺呈現
+            stamp.innerText = isPlayerPass ? "核准" : "駁回";
+            stamp.className = isPlayerPass ? "stamp-overlay stamp-show stamp-pass" : "stamp-overlay stamp-show stamp-reject";
+
+            // 判斷邏輯：
+            // 如果報表造假 (isFraud)，玩家必須拒絕 (!isPass)。
+            // 如果報表正確 (!isFraud)，玩家必須核准 (isPass)。
+            const isCorrectChoice = (isCurrentFraud && !isPlayerPass) || (!isCurrentFraud && isPlayerPass);
+
+            setTimeout(() => {
+                stamp.classList.remove('stamp-show'); // 隱藏印章
+                
+                if (isCorrectChoice) {
+                    // 答對了，進入下一關
+                    currentLevel++;
+                    if (currentLevel >= builders.length) {
+                        // 通關
+                        document.querySelector('.left-panel').classList.add('hidden');
+                        document.querySelector('.right-panel').classList.add('hidden');
+                        document.getElementById('victory-screen').style.display = 'block';
+                        msgBox.innerText = ">> 全數審核完畢。";
+                    } else {
+                        // 下一關
+                        loadLevel(currentLevel);
+                    }
+                } else {
+                    // 答錯了，懲罰特效
+                    msgBox.innerText = ">> 警告：查核錯誤！請重新計算報表與公定價的乘積！";
+                    msgBox.style.color = "#ff5555";
                     
-                    <button class="calc-btn" onclick="calcInput('4')">4</button>
-                    <button class="calc-btnNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+                    container.classList.add('shake-effect');
+                    setTimeout(() => container.classList.remove('shake-effect'), 300);
+                }
+            }, 800); // 印章停留時間
+        }
+
+        // 啟動遊戲
+        window.onload = initGame;
+    </script>
+</body>
+</html>
