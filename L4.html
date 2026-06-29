@@ -152,6 +152,10 @@
         }
         .shake-effect { animation: shake 0.3s ease-in-out; }
 
+        /* 音效提示文字閃爍 */
+        @keyframes blinkText { 50% { opacity: 0.3; } }
+        .audio-hint { font-size: 16px; color: #55aa55; margin-bottom: 20px; animation: blinkText 2s infinite; font-weight: bold; }
+
         /* 勝利畫面 */
         #victory-screen { padding: 50px; text-align: center; background: #000; }
         .hidden { display: none !important; }
@@ -166,11 +170,18 @@
 </head>
 <body>
 
+    <audio id="bgm" loop hidden>
+        <source src="HTMLMESEUM2.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="app-container">
         <div class="construction-tape"></div>
 
         <div id="start-screen">
             <h1>【隱藏關卡】冬山河監工大考驗</h1>
+            
+            <div class="audio-hint">(點擊畫面任意處以啟動音訊模組)</div>
+
             <div class="story-text">
                 陳定南在建設冬山河親水公園和羅東運動公園時，出了名的「龜毛」。<br><br>
                 他會親自拿著皮尺量樹木的間距、拿鐵鎚敲打地磚測試密合度，只要角度不對、有一點點偷工減料，當場要求打掉重練。<br><br>
@@ -219,13 +230,27 @@
             <div style="font-size: 50px; color: var(--warning-yellow); margin: 30px 0; font-weight: bold; border: 4px dashed; padding: 20px;">
                 品質保證，青天精神
             </div>
-            <button class="btn btn-pass" onclick="location.reload()">完成所有任務 (重啟系統)</button>
+            <button class="btn btn-pass" onclick="location.reload()">重新檢驗 (重啟關卡)</button>
+            <br><br><br>
+            <a href="index.html" style="color: var(--term-green); font-size: 18px; text-decoration: underline; letter-spacing: 2px;">>> 返回核心檔案庫首頁 <<</a>
         </div>
 
         <div class="construction-tape"></div>
     </div>
 
     <script>
+        // --- 背景音樂觸發處理 ---
+        const bgm = document.getElementById('bgm');
+        
+        // 監聽畫面的第一次點擊，點擊後立刻播放音樂
+        window.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(error => {
+                    console.log("音樂播放失敗，請確認檔案路徑是否正確：", error);
+                });
+            }
+        }, { once: true });
+
         // 工程檢驗項目資料庫
         const inspectionItems = [
             { name: '黑板樹植栽間距', std: 500, unit: 'cm' },
