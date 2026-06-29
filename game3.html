@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秘密調查處 - 黑夜追緝：抓捕盜採砂石車</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+        :root {
+            --bg-color: #050505;
+            --text-green: #33ff33;
+            --text-alert: #ff3333;
+            --text-blue: #33ccff;
+            --border-style: 2px solid var(--text-green);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-green);
+            font-family: 'DotGothic16', 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* CRT 螢幕掃描線特效 */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 999;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        #app {
+            width: 900px;
+            max-width: 95%;
+            border: 4px solid #444;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(51, 255, 51, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 系統開發者標頭 */
+        .authors-header {
+            background: #111;
+            color: #888;
+            font-size: 14px;
+            text-align: right;
+            padding: 5px 10px;
+            border-bottom: 1px solid #333;
+            font-family: sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* === 開始畫面 === */
+        #start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        #start-screen h1 { font-size: 36px; text-shadow: 0 0 10px var(--text-green); margin-bottom: 20px;}
+        .story-text { font-size: 18px; line-height: 1.8; text-align: left; background: #0a0a0a; padding: 20px; border: var(--border-style); margin-bottom: 30px;}
+        
+        /* === 遊戲畫面 === */
+        #game-screen { display: flex; height: 500px; }
+        
+        /* 左側：合法車牌列表 */
+        #left-panel {
+            width: 250px;
+            border-right: var(--border-style);
+            padding: 15px;
+            background-color: #0a110a;
+            display: flex;
+            flex-direction: column;
+        }
+        #left-panel h3 { margin-top: 0; color: var(--text-blue); border-bottom: 1px dashed var(--text-blue); padding-bottom: 10px; text-align: center;}
+        #plate-list { list-style: none; padding: 0; margin: 0; font-size: 20px; line-height: 1.8; text-align: center; font-weight: bold;}
+        
+        /* 右側：黑夜探照燈區與操作 */
+        #right-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .status-bar {
+            padding: 10px; background: #111; border-bottom: var(--border-style);
+            display: flex; justify-content: space-between; font-size: 18px; font-weight: bold;
+        }
+
+        /* 黑夜探照燈場景 */
+        #night-scene {
+            flex-grow: 1;
+            background-color: #111; /* 黑暗背景 */
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 預設探照燈中心點 */
+            --x: 50%; --y: 50%; 
+        }
+        
+        /* 手電筒遮罩 */
+        #night-scene::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle 120px at var(--x) var(--y), transparent 0%, rgba(0,0,0,0.98) 100%);
+            pointer-events: none; /* 讓滑鼠事件穿透 */
+            z-index: 5;
+        }
+
+        /* ASCII 砂石車 */
+        .ascii-truck {
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            font-size: 16px;
+            line-height: 1.2;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .license-plate {
+            display: inline-block;
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
+            padding: 2px 8px;
+            border: 2px solid #000;
+            margin-top: 5px;
+            font-size: 22px;
+        }
+
+        /* 控制按鈕 */
+        #controls {
+            padding: 15px;
+            background: #222;
+            display: flex;
+            justify-content: space-around;
+            border-top: var(--border-style);
+        }
+
+        /* 按鈕共用樣式 */
+        .btn {
+            font-family: inherit; font-size: 20px; padding: 12px 30px;
+            border: 2px solid; cursor: pointer; font-weight: bold;
+            background: #000; transition: all 0.1s; letter-spacing: 2px;
+        }
+        .btn:active { transform: translateY(2px); }
+        .btn-start { color: var(--text-green); border-color: var(--text-green); box-shadow: 0 0 10px var(--text-green); animation: blink 1.5s infinite;}
+        .btn-pass { color: var(--text-blue); border-color: var(--text-blue); }
+        .btn-pass:hover { background: #002233; }
+        .btn-impound { color: var(--text-alert); border-color: var(--text-alert); }
+        .btn-impound:hover { background: #330000; }
+
+        /* === 勝利畫面 === */
+        #victory-screen {
+            padding: 40px;
+            text-align: center;
+            background: #051a05;
+        }
+        .password-box {
+            font-size: 60px; color: #ffff33; background: #111;
+            padding: 20px; border: 4px dashed #ffff33;
+            display: inline-block; margin: 20px 0; letter-spacing: 10px;
+        }
+        .history-text {
+            font-size: 18px; color: #ddd; line-height: 1.8;
+            background: rgba(0,0,0,0.5); padding: 20px; border: 1px solid #555;
+            text-align: justify;
+        }
+
+        .hidden { display: none !important; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .shake-effect { animation: shake 0.3s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <!-- 系統標頭 (學號與姓名) -->
+        <div class="authors-header">
+            SYSTEM DEV: D1144241015-王睿朋 | D1144241019-黃永鈞
+        </div>
+
+        <!-- 1. 開始畫面 -->
+        <div id="start-screen">
+            <h1>【黑夜追緝】抓捕盜採砂石車</h1>
+            <div class="story-text">
+                <p>1980年代，台北地區對建築砂石需求量暴增，大批不肖業者與黑道勢力勾結，以合法掩護非法，在宜蘭人的生命之河——「蘭陽溪」進行大規模越界、超挖與盜採砂石。</p>
+                <p>陳定南收到市民檢舉有人盜採砂石，展現極大魄力，親自帶領警察在深夜埋伏，大力掃蕩盜採砂石的集團。</p>
+                <p style="color: #ffff33;">任務指示：滑動滑鼠使用手電筒探照，核對車牌是否在左側的「合法申報名單」內。正確請【放行】，錯誤請【扣押】。</p>
+            </div>
+            <button class="btn btn-start" onclick="startGame()">開始抓捕</button>
+        </div>
+
+        <!-- 2. 遊戲畫面 -->
+        <div id="game-screen" class="hidden">
+            <!-- 左側合法名單 -->
+            <div id="left-panel">
+                <h3>合法申報名單</h3>
+                <ul id="plate-list">
+                    <!-- JS 動態生成 10 個車牌 -->
+                </ul>
+            </div>
+
+            <!-- 右側探照區 -->
+            <div id="right-panel">
+                <div class="status-bar">
+                    <span id="sys-msg">系統提示：深夜埋伏中，請隨時注意車輛...</span>
+                    <span>攔查進度：<span id="round-display">1</span> / 5</span>
+                </div>
+                
+                <!-- 手電筒遮罩與車輛顯示區 -->
+                <div id="night-scene">
+                    <div class="ascii-truck" id="truck-container">
+   ___________________
+  |                   |____
+  |   蘭陽溪砂石清運  |    |___
+  |___________________|    |   |
+   (O)             (O) '---(O)-'
+                        <br>
+                        <div class="license-plate" id="truck-plate">XX-0000</div>
+                    </div>
+                </div>
+
+                <!-- 控制鈕 -->
+                <div id="controls">
+                    <button class="btn btn-pass" onclick="checkAnswer(true)">核對無誤 (放行)</button>
+                    <button class="btn btn-impound" onclick="checkAnswer(false)">非法盜採 (扣押)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 勝利畫面 -->
+        <div id="victory-screen" class="hidden">
+            <h1 style="color: #33ff33; margin-top:0;">破獲盜採集團！</h1>
+            <p style="font-size: 22px;">機密檔案解鎖密碼：</p>
+            <div class="password-box">1989</div>
+            <div class="history-text">
+                前宜蘭縣長陳定南在任內（1981—1989年）以鐵面無私、雷厲風行的治縣風格著稱，其中鐵腕整頓蘭陽溪盜採砂石與嚴格取締違規砂石車，為保護蘭陽平原的自然環境與交通安全奠定了重要基礎。
+            </div>
+            <br>
+            <button class="btn btn-pass" onclick="location.reload()" style="margin-top: 10px;">重新啟動系統</button>
+        </div>
+    </div>
+
+    <script>
+        // === 遊戲變數 ===
+        const totalRounds = 5;
+        let currentRound = 1;
+        let legalPlates = [];
+        let isCurrentLegal = false;
+
+        // 生成隨機車牌 (如 AB-1234)
+        function generateRandomPlate() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const c1 = chars.charAt(Math.floor(Math.random() * chars.length));
+            const c2 = chars.charAt(Math.floor(Math.random() * chars.length));
+            const num = Math.floor(1000 + Math.random() * 9000); // 1000~9999
+            return `${c1}${c2}-${num}`;
+        }
+
+        // 開始遊戲初始化
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            // 1. 生成 10 個合法車牌
+            legalPlates = [];
+            const listUl = document.getElementById('plate-list');
+            listUl.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const plate = generateRandomPlate();
+                legalPlates.push(plate);
+                listUl.innerHTML += `<li>${plate}</li>`;
+            }
+
+            // 2. 啟動手電筒特效
+            const nightScene = document.getElementById('night-scene');
+            nightScene.addEventListener('mousemove', (e) => {
+                // 取得鼠標在 night-scene 內的相對座標
+                const rect = nightScene.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                nightScene.style.setProperty('--x', `${x}px`);
+                nightScene.style.setProperty('--y', `${y}px`);
+            });
+
+            // 3. 進入第一回合
+            nextRound();
+        }
+
+        // 載入下一台車
+        function nextRound() {
+            if (currentRound > totalRounds) {
+                // 勝利
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('victory-screen').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('round-display').innerText = currentRound;
+            document.getElementById('sys-msg').innerText = "系統提示：前方發現車輛，請用探照燈查驗車牌。";
+            document.getElementById('sys-msg').style.color = "var(--text-green)";
+
+            // 隨機決定這台車是否合法 (約 50% 機率)
+            isCurrentLegal = Math.random() > 0.5;
+            let displayPlate = "";
+
+            if (isCurrentLegal) {
+                // 從合法名單中隨機抽一個
+                const randomIndex = Math.floor(Math.random() * legalPlates.length);
+                displayPlate = legalPlates[randomIndex];
+            } else {
+                // 產生一個絕對不在合法名單內的假車牌
+                do {
+                    displayPlate = generateRandomPlate();
+                } while (legalPlates.includes(displayPlate));
+            }
+
+            document.getElementById('truck-plate').innerText = displayPlate;
+            
+            // 讓車子有重新出現的感覺 (隨機微調位置)
+            const truck = document.getElementById('truck-container');
+            const offsetY = (Math.random() * 40 - 20) + "px";
+            truck.style.transform = `translateY(${offsetY})`;
+        }
+
+        // 玩家點擊判斷按鈕
+        function checkAnswer(playerActionPass) {
+            const app = document.getElementById('app');
+            const sysMsg = document.getElementById('sys-msg');
+
+            // 判斷邏輯：
+            // 如果車合法 (isCurrentLegal) 且玩家按放行 (playerActionPass) -> 正確
+            // 如果車非法 (!isCurrentLegal) 且玩家按扣押 (!playerActionPass) -> 正確
+            if (isCurrentLegal === playerActionPass) {
+                // 答對了，進入下一台車
+                currentRound++;
+                nextRound();
+            } else {
+                // 答錯了，懲罰特效
+                sysMsg.innerText = ">> 警告：判斷錯誤！請仔細核對左側名單！";
+                sysMsg.style.color = "var(--text-alert)";
+                
+                // 螢幕震動
+                app.classList.add('shake-effect');
+                setTimeout(() => app.classList.remove('shake-effect'), 300);
+            }
+        }
+    </script>
+</body>
+</html>
